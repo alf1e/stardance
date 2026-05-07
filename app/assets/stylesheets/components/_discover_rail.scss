@@ -2,10 +2,10 @@
 
 .discover-rail {
   position: fixed;
-  right: var(--space-xl);
+  right: 48px;
   top: var(--space-xxl);
   width: 425px;
-  max-height: calc(100vh - var(--space-xxl) - var(--space-xl));
+  max-height: calc(100vh - var(--space-xxl) - 48px);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
