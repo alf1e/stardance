@@ -634,6 +634,16 @@ Rails.application.routes.draw do
         post :trigger
       end
     end
+
+    resources :missions, param: :slug do
+      resources :steps,        only: [ :create, :update, :destroy ], controller: "mission_steps"
+      resources :prizes,       only: [ :create, :update, :destroy ], controller: "mission_prizes"
+      resources :memberships,  only: [ :create, :update, :destroy ], controller: "mission_memberships"
+      resources :shop_unlocks, only: [ :create, :destroy ],          controller: "mission_shop_unlocks"
+      member do
+        post :restore
+      end
+    end
   end
 
   get "queue", to: "queue#index"
@@ -650,6 +660,11 @@ Rails.application.routes.draw do
     resources :reports, only: [ :create ], module: :projects
     resource :og_image, only: [ :show ], module: :projects, defaults: { format: :png }
     resource :ships, only: [ :new, :create ], module: :projects
+    resource :mission, only: [ :create, :destroy ], module: :projects, controller: "missions"
+    resources :mission_step_completions,
+              only: [ :create, :destroy ],
+              module: :projects,
+              param: :mission_step_id
     member do
       get :readme
       post :mark_fire
@@ -683,6 +698,32 @@ Rails.application.routes.draw do
 
   # Guides
   resources :guides, only: [ :index, :show ]
+
+  # Missions (public listing + show page).
+  # Project-side / reviewer-queue / admin-managed missions surfaces ship in later PRs.
+  resources :missions, only: [ :index, :show ], param: :slug do
+    resource :og_image, only: [ :show ], module: :missions, defaults: { format: :png }
+  end
+
+  # Reviewer queue.
+  resources :mission_submissions, only: [ :index, :show ] do
+    member do
+      post :approve
+      post :reject
+      post :undo
+      get  :redeem
+    end
+  end
+
+  # Owner-managed mission CRUD.
+  namespace :manage do
+    resources :missions, param: :slug, only: [ :show, :edit, :update ] do
+      resources :steps,        only: [ :create, :update, :destroy ], controller: "mission_steps"
+      resources :prizes,       only: [ :create, :update, :destroy ], controller: "mission_prizes"
+      resources :memberships,  only: [ :create, :update, :destroy ], controller: "mission_memberships"
+      resources :shop_unlocks, only: [ :create, :destroy ],          controller: "mission_shop_unlocks"
+    end
+  end
 
   get "/:ref", to: "landing#index", constraints: { ref: /[a-z0-9][a-z0-9_-]{0,63}/ }
 end

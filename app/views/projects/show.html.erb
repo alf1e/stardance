@@ -137,6 +137,10 @@
       </nav>
     <% end %>
 
+    <% if Flipper.enabled?(:missions, current_user) %>
+      <%= render "projects/mission_panel", project: @project %>
+    <% end %>
+
     <% if @show_ai_coding_time_ignored_card %>
       <aside id="ai-coding-time-ignored-card" class="project-show__notice">
         <h2>Note: AI coding time is being ignored</h2>
