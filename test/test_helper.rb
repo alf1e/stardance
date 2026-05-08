@@ -1,6 +1,7 @@
 ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
+require "view_component/test_helpers"
 
 module ActiveSupport
   class TestCase
@@ -12,6 +13,11 @@ module ActiveSupport
 
     # Add more helper methods to be used by all tests here...
   end
+end
+
+class ViewComponent::TestCase
+  include Rails.application.routes.url_helpers
+  include ViewComponent::TestHelpers
 end
 
 module ActionDispatch

@@ -1,0 +1,15 @@
+# frozen_string_literal: true
+
+class PostComponent < ViewComponent::Base
+  attr_reader :post, :current_user, :theme, :compact, :show_likes, :show_comments, :show_actions
+
+  def initialize(post:, current_user: nil, theme: :feed, compact: false, show_likes: true, show_comments: true, show_actions: true)
+    @post = post
+    @current_user = current_user
+    @theme = theme
+    @compact = compact
+    @show_likes = show_likes
+    @show_comments = show_comments
+    @show_actions = show_actions
+  end
+end
