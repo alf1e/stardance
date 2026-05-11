@@ -160,14 +160,14 @@
 <%= turbo_frame_tag "profile_tabs", target: "_top" do %>
 <nav class="profile-tabs" role="tablist" aria-label="Profile sections">
   <% [
-    [ "feed",     "Feed" ],
-    [ "devlogs",  "Devlogs" ],
-    [ "replies",  "Replies" ],
-    [ "projects", "Projects (#{@stats[:projects_count]})" ]
-  ].each do |key, label| %>
+    [ "feed",     "Feed",                         user_path(@user) ],
+    [ "devlogs",  "Devlogs",                      devlogs_user_path(@user) ],
+    [ "replies",  "Replies",                      replies_user_path(@user) ],
+    [ "projects", "Projects (#{@stats[:projects_count]})", projects_user_path(@user) ]
+  ].each do |key, label, path| %>
     <% tab_active = (@active_tab == key) %>
     <%= link_to label,
-                user_path(@user, tab: key),
+                path,
                 role: "tab",
                 "aria-selected": tab_active,
                 class: [ "profile-tabs__tab", ("profile-tabs__tab--active" if tab_active) ].compact.join(" "),

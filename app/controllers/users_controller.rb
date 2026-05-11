@@ -1,12 +1,56 @@
 class UsersController < ApplicationController
-  TAB_KEYS = %w[feed devlogs replies projects].freeze
-
   def show
-    @user = User.includes(:preference).find(params[:id])
+    load_profile("feed")
+  end
+
+  def devlogs
+    load_profile("devlogs")
+    render :show
+  end
+
+  def replies
+    load_profile("replies")
+    render :show
+  end
+
+  def projects
+    load_profile("projects")
+    render :show
+  end
+
+  def update
+    @user = User.find(params[:id])
     authorize @user
 
+    if @user.update(user_params)
+      redirect_to user_path(@user), notice: "Profile updated."
+    else
+      redirect_to user_path(@user), alert: @user.errors.full_messages.to_sentence
+    end
+  end
+
+  def followers
+    @user = User.find(params[:id])
+    authorize @user, :followers?
+    @followers = @user.followers.order(:display_name)
+    render layout: false
+  end
+
+  def following
+    @user = User.find(params[:id])
+    authorize @user, :following?
+    @following = @user.following.order(:display_name)
+    render layout: false
+  end
+
+  private
+
+  def load_profile(active_tab)
+    @user = User.includes(:preference).find(params[:id])
+    authorize @user, :show?
+
     @body_class = "app-layout-page"
-    @active_tab = TAB_KEYS.include?(params[:tab]) ? params[:tab] : "feed"
+    @active_tab = active_tab
 
     @projects = @user.projects
                      .select(:id, :title, :description, :created_at, :updated_at, :ship_status, :shipped_at, :devlogs_count, :duration_seconds)
@@ -45,33 +89,6 @@ class UsersController < ApplicationController
     @following_count = @user.following.count
     @viewer_follows  = current_user&.follows?(@user) || false
   end
-
-  def update
-    @user = User.find(params[:id])
-    authorize @user
-
-    if @user.update(user_params)
-      redirect_to user_path(@user), notice: "Profile updated."
-    else
-      redirect_to user_path(@user), alert: @user.errors.full_messages.to_sentence
-    end
-  end
-
-  def followers
-    @user = User.find(params[:id])
-    authorize @user, :followers?
-    @followers = @user.followers.order(:display_name)
-    render layout: false
-  end
-
-  def following
-    @user = User.find(params[:id])
-    authorize @user, :following?
-    @following = @user.following.order(:display_name)
-    render layout: false
-  end
-
-  private
 
   def user_params
     params.require(:user).permit(:bio, :banner)

@@ -29,8 +29,7 @@ export default class extends Controller {
 
     if (top === url) return; // exact dedupe
 
-    // Same pathname (e.g. profile tab switches: /users/42?tab=feed →
-    // /users/42?tab=devlogs) → replace the top entry so we remember the most
+    // Same pathname → replace the top entry so we remember the most
     // recent tab without growing the stack with every tab click.
     if (top && pathOnly(top) === pathOnly(url)) {
       stack[stack.length - 1] = url;

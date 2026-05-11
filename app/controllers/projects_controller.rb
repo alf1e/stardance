@@ -202,7 +202,7 @@ class ProjectsController < ApplicationController
       @project.soft_delete!(force: force)
       current_user.revoke_tutorial_step! :create_project if current_user.projects.empty?
       flash[:notice] = "Project deleted successfully"
-      redirect_to user_path(current_user, tab: "projects")
+      redirect_to projects_user_path(current_user)
     rescue ActiveRecord::RecordInvalid => e
       flash[:alert] = e.record.errors.full_messages.to_sentence
       redirect_to @project

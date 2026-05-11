@@ -117,7 +117,7 @@ class SessionsController < ApplicationController
       return
     end
 
-    redirect_to(user.setup_complete? ? user_path(user, tab: "projects") : home_path, notice: "Signed in with Hack Club")
+    redirect_to(user.setup_complete? ? projects_user_path(user) : home_path, notice: "Signed in with Hack Club")
   end
 
   def destroy

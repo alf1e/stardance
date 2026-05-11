@@ -41,7 +41,7 @@ export default class extends Controller {
     const href = link.getAttribute("href");
     if (!href || href === "#") return false;
 
-    // Use the link's `pathname` so query strings (e.g. ?tab=projects) don't
+    // Use the link's `pathname` so query strings don't
     // break matching.
     const linkPath = link.pathname;
     if (path === linkPath) return true;

@@ -31,7 +31,7 @@ class SidebarComponent < ViewComponent::Base
       { slug: "events",        label: "events",        path: "#", icon: "code_outline" },
       { slug: "shop",          label: "shop",          path: "/shop", icon: "cart_outline" },
       { slug: "resources",     label: "resources",     path: helpers.guides_path, icon: "resources" },
-      { slug: "projects",      label: "my projects",   path: helpers.user_path(user, tab: "projects"),
+      { slug: "projects",      label: "my projects",   path: helpers.projects_user_path(user),
         icon: :avatar, active_prefix: "/users/" }
     ]
 
