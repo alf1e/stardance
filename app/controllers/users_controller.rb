@@ -55,7 +55,7 @@ class UsersController < ApplicationController
     @projects = @user.projects
                      .select(:id, :title, :description, :created_at, :updated_at, :ship_status, :shipped_at, :devlogs_count, :duration_seconds)
                      .order(created_at: :desc)
-                     .includes(:users, :mission_attachments, banner_attachment: :blob)
+                     .includes(:users, banner_attachment: :blob)
 
     @activity = Post.joins(:project)
                     .merge(Project.not_deleted)

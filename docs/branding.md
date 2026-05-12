@@ -47,7 +47,7 @@ on top of that set's `background`.
 | **Set 1** — main | `#08061E` | `#83828D` | Page background. Containers with lots of text: posts, notifications, comments. Default surface. |
 | **Set 2** — dark blue | `#343651` | `#83828D` | Cards that are themselves interactive: project cards, clickable cards. |
 | **Set 3** — solid blue | `#606684` | `#AFB2C1` | Profile sections, top-of-page cards. The "lifted" surface. |
-| **Set 4** — highlighted | `#65625D` | `#B3B1AD` | Highlighted posts that need to draw attention. Warmer than the others on purpose. |
+| **Set 4** — highlighted | `#66625C` | `#B3B1AD` | Highlighted posts/cards that need to draw attention (e.g. featured "latest ship"). Numerically the canonical highlight cream (`#FEFCE7`) at ~40% alpha over set 1 — warm-gray that pairs with a cream highlight border. |
 
 Foreground text on any set: `#FFFFFF`.
 
@@ -60,6 +60,32 @@ not container surfaces. They live on top of set 1 / set 2.
 | --- | --- | --- |
 | **Highlight** | `#F4EBB9` | Soft golden yellow. |
 | **Secondary highlight** | `#FEFCE7` | Near-white cream — used as a quieter alternative to `Highlight`. |
+
+#### Extra highlight — the four-corner gradient
+
+A mesh blend of four brand accents (yellow → salmon along the top, lilac →
+brand-blue along the bottom). Sourced from the Figma "extra highlight"
+sample. CSS radial-gradients can't reproduce the mesh faithfully, so the
+canonical asset is a PNG shipped at
+[`app/assets/images/gradients/extra-highlight.png`](../app/assets/images/gradients/extra-highlight.png)
+and exposed as the CSS token `--gradient-extra-highlight`.
+
+**Rule of thumb: at most one or two on a page.** This is the loudest surface
+the system offers — reserve it for moments that deserve genuine spectacle
+(a Super-Star Project chip, a hero badge, a once-per-page celebration). On
+every other surface, use the regular accents or highlights.
+
+**Usage.** The token resolves to a `url(...)`, so the consumer is responsible
+for the sizing keywords. Always set it via the background shorthand so the
+asset covers the element and is centred:
+
+```scss
+background: var(--gradient-extra-highlight) center / cover no-repeat;
+color:      var(--color-set-1-bg); // dark ink on a bright pastel
+```
+
+Example uses today:
+- `.project-show__badge--fire` (Super-Star Project chip)
 
 ### 1.3 Accents
 
@@ -97,9 +123,12 @@ write SCSS, reference the variable, not the hex.
 | Accent 4 blue `#95DBFF` | `--color-brand-blue` | ✓ exact |
 | Accent 5 lilac `#EBB7FF` | `--color-brand-lilac` | ✓ exact |
 | Accent 6 mint `#81FFFF` | `--color-brand-mint` | ✓ exact |
-| Highlight `#F4EBB9` | _(no variable yet)_ | `--color-brand-cream: #FFF8D5` is close but not the same. Add `--color-brand-highlight` when first needed. |
-| Secondary highlight `#FEFCE7` | _(no variable yet)_ | `--color-brand-off-white: #FFFCF4` is close but not the same. Add `--color-brand-highlight-secondary` when first needed. |
-| Set 2/3/4 backgrounds + secondary foregrounds | _(no variables yet)_ | Add `--color-set-N-bg` / `--color-set-N-fg-secondary` when first needed. |
+| Highlight `#F4EBB9` | `--color-brand-highlight` | ✓ exact (also `--color-brand-highlight-soft` α 0.4 and `-faint` α 0.12 for tinted variants) |
+| Secondary highlight `#FEFCE7` | `--color-brand-highlight-secondary` | ✓ exact |
+| Extra-highlight gradient | `--gradient-extra-highlight` | Four-stop radial blend — yellow / salmon / lilac / blue. Set as the value of `background:` (not `background-color`). |
+| Set 1 / 2 / 3 / 4 backgrounds | `--color-set-1-bg` … `--color-set-4-bg` | ✓ exact |
+| Set 4 hex | `--color-set-4-bg: #66625C` | The original audit listed `#65625D` — refined to `#66625C` (cream `#FEFCE7` at 40% alpha over set 1). |
+| Set N secondary foregrounds | _(no variables yet)_ | Add `--color-set-N-fg-secondary` when first needed. |
 
 ---
 
@@ -154,7 +183,7 @@ one special case.
 | **Main container** (set 1) | 2px | `#08061E` | Posts, notifications, comments — anywhere with a lot of text. Default container. |
 | **Dark blue container** (set 2) | 2px | `#343651` | Project cards and other clickable cards. The presence of a border signals "you can click me." |
 | **Solid blue container** (set 3) | _none_ | `#606684` | Profile sections, top-of-page cards. No border because they sit above the page surface visually. |
-| **Highlighted container** (set 4) | 2px | `#65625D` | Highlighted posts that need to stand out — warmer tone than the blues. |
+| **Highlighted container** (set 4) | 2px | `#66625C` | Highlighted posts/cards that need to stand out — warmer tone than the blues. Pairs naturally with a `--color-brand-highlight` border. |
 
 **Borders.** When a set has a 2px border, the border color matches the
 container's secondary-foreground (the muted text color) — this gives the edge
@@ -171,8 +200,27 @@ copy-pasted or moved.
 ## 4. Buttons
 
 Three button types: **small action**, **large action**, **special action**.
-Each has variants and states. All three use **fully rounded corners**
-(pill shape — `border-radius` = half the height).
+Each has variants and states. All three use **fully rounded corners** (pill
+shape — `border-radius` = half the height).
+
+### 4.0 Background-aware variants
+
+The Figma defines **two visual variants** of every button, picked based on
+the surface the button sits on:
+
+| Variant | Use on which sets | Why |
+| --- | --- | --- |
+| **Dark-bg variant** | Set 1 (`#08061E`) and set 2 (`#343651`) | Primary fills lean cream/highlight to pop against the dark surface. |
+| **Light-bg variant** | Set 3 (`#606684`) and set 4 (`#66625C`) | Primary fills lean white because the cream highlight blends into set 3/4. |
+
+Reach for the variant that matches the **immediate parent surface**, not the
+page background. A pill inside a set-3 panel uses the light-bg variant, even
+though the page itself is set 1.
+
+The state matrix below lists the **dark-bg** variant — the one used for the
+top-level action row on most pages. The light-bg variant follows the same
+pattern but pushes Normal one step lighter (`brand-highlight` →
+`brand-highlight-secondary` or `white`).
 
 ### 4.1 Small action buttons
 
@@ -180,61 +228,80 @@ Each has variants and states. All three use **fully rounded corners**
 - **Border:** 2px.
 - **Padding:** 16px horizontal, 3px vertical.
 - **Used for:** Edit profile / Edit post, Save and discard on profile / posts,
-  confirmation popups.
+  confirmation popups, follow / unfollow.
+- **Hover behaviour:** at this size the button doesn't have an end icon, so
+  hover just shifts the fill (no symbol movement).
 
-**Variants:**
+**Variants & states (dark-bg):**
 
-- **Primary action** — filled with the muted set color.
-- **Secondary action** — outlined.
-- **Destructive action** — uses `accent 3` salmon to signal warning. Reserve
-  for irreversible deletes (delete post, delete account).
+| | Normal | Hover | Pressed | Disabled |
+| --- | --- | --- | --- | --- |
+| **Primary action** — *filled* | `--color-brand-highlight` (`#F4EBB9`) fill, `--color-set-1-bg` text, no border | `--color-brand-highlight-secondary` (`#FEFCE7`) fill | white fill | `opacity: 0.5` over normal |
+| **Secondary action** — *outlined* | `--color-set-2-bg` fill, white text, white 2px border | same fill, icon transition | same fill, `--color-brand-highlight` text + `--color-brand-highlight` border | `opacity: 0.5` over normal |
+| **Destructive action** | transparent fill, `--color-brand-salmon` text, `--color-brand-salmon` 2px border | `--color-brand-salmon` fill, `--color-set-1-bg` text | `--color-brand-salmon` fill, dark text (slightly washed) | `opacity: 0.5` over normal |
 
-**States** (all three variants):
+**Light-bg overrides** (when used inside a set-3 or set-4 surface):
 
-- **Normal** — base appearance.
-- **Hover** — slightly lighter / inverted fill (no symbol movement at this
-  size).
-- **Pressed** — fill saturates briefly.
-- **Disabled** — 50% opacity over the normal state.
-
-Small buttons are designed against set 1 / set 2 backgrounds. If you're
-placing one on set 3 or set 4, eyeball contrast and adjust.
+- **Primary** — full state ladder reverses on a light bg, stepping
+  *darker* with each interaction so pressing reads as "more filled":
+  - **Normal:** white fill (`--color-space-text`)
+  - **Hover:** `--color-brand-highlight-secondary` (`#FEFCE7`)
+  - **Pressed:** `--color-brand-highlight` (`#F4EBB9`)
+  - **Disabled:** opacity 0.5
+- **Secondary normal** swaps the set-2 fill → **transparent** so the
+  surrounding surface shows through; border stays white-on-set-3 or
+  dark-text-on-set-4.
+- Destructive variant unchanged.
 
 ### 4.2 Large action buttons
 
 - **Text:** 22px, bold.
 - **Border:** 2px.
 - **Padding:** ≥32px horizontal _or_ fill the row horizontally; 12px vertical.
-- **End icon:** optional. When present, it moves right on hover.
+- **End icon:** optional. When present, **the icon translates right on
+  hover** (the button body itself doesn't move).
 - **Used for:** the primary action on a page or modal — "Post a devlog",
   "Create new ship", external link buttons like "Try project" / "See source
   code".
 
-**Variants:**
+**Variants & states (dark-bg):**
 
-- **Primary action** — filled with `accent 2` yellow (`#FFE564`). The "do the
-  thing" button.
-- **Secondary action** — outlined / muted. Lives next to a primary on a form.
+| | Normal | Hover | Pressed | Disabled |
+| --- | --- | --- | --- | --- |
+| **Primary action** — *filled* | `--color-brand-highlight` (`#F4EBB9`) fill, dark text, no border (border-color matches fill) | `--color-brand-highlight-secondary` (`#FEFCE7`) fill | white fill | `opacity: 0.5` over normal |
+| **Secondary action** — *outlined* | `--color-set-2-bg` fill, white text, white 2px border | same fill, end-icon translates right | same fill, `--color-brand-highlight` text + border | `opacity: 0.5` over normal |
 
-**States:** Normal · Hover · Pressed · Disabled (50% opacity). On hover, the
-end icon translates right by a few pixels — the button itself doesn't move,
-just the trailing icon.
+**Light-bg overrides:**
+
+- **Primary** — same darker-on-press ladder as the small-action variant:
+  white normal → `--color-brand-highlight-secondary` hover →
+  `--color-brand-highlight` pressed.
+- **Secondary normal** keeps the white border + white text but drops the fill
+  to transparent.
 
 ### 4.3 Special action button
 
 - **Shape:** the button body sits inside a **star symbol** outline — the
   rounded-rect button overlaps a star shape so a few of the star's points peek
-  out behind the pill.
+  out behind the pill. The star and the pill share the same fill colour at
+  every state.
 - **Text:** 22px, bold.
-- **Border:** 2px transparent _plus_ a 2px yellow ring — i.e. the pill has a
-  transparent stroke and the underlying star is yellow (`accent 2`).
+- **Border:** the pill itself has a 2px transparent border (so the star fill
+  shows through underneath); the star isn't bordered, it's filled.
 - **Padding:** ≥32px horizontal, 12px vertical.
-- **End icon:** required (the symbol that "moves right" on hover, same as
-  large buttons).
+- **End icon:** required (an arrow / arrow-like glyph). On hover, the icon
+  translates right *and* the star rotates 72° clockwise.
 - **Used for:** big, important, and (ish-)irreversible actions. New post,
   submitting a rating, "Continue" in forms. The star is the cue that this
   button is the climactic action of a flow — don't sprinkle it on minor
   buttons.
+
+**State matrix** (dark bg only — special action isn't shown on light surfaces):
+
+| | Normal | Hover | Pressed | Disabled |
+| --- | --- | --- | --- | --- |
+| Star + pill fill | `--color-brand-highlight` | `--color-brand-highlight` (star rotates 72° CW, end-icon shifts right) | white fill | `opacity: 0.5` over normal |
+| Text | dark (`--color-set-1-bg`) | same | same | `opacity: 0.5` |
 
 **States:**
 
@@ -300,8 +367,10 @@ muted borders — and document the choice back into this section.
 5. Exo 2 everywhere; Playfair Display bold-italic only for Title / Title 2 as
    editorial emphasis.
 6. Containers: 8px radius. Buttons: fully rounded.
-7. Yellow `#FFE564` is reserved for the special-action star and large primary
-   buttons. Don't paint a regular surface with it.
+7. **Primary action buttons fill with `--color-brand-highlight` (`#F4EBB9`),
+   not yellow.** Yellow `#FFE564` is *only* used inside the
+   `--gradient-extra-highlight` mesh (see §1.2) — it doesn't appear as a
+   solid fill anywhere else.
 8. Salmon `#FF8D9D` signals warn/destructive. Use it for that, not decoration.
 9. Disabled = 50% opacity over the normal state — don't invent a separate
    disabled color.

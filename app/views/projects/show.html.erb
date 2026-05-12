@@ -76,7 +76,7 @@
                   <% if members.any? %>
                     <ul class="project-show__avatars" aria-hidden="true">
                       <% members.first(4).each do |member| %>
-                        <li>
+                        <li class="project-show__avatars-item">
                           <% if member.slack_id.present? %>
                             <%= image_tag member.avatar, alt: member.display_name, class: "project-show__avatar" %>
                           <% else %>
@@ -98,13 +98,13 @@
               </div>
 
               <ul class="project-show__stats" aria-label="Project stats">
-                <li>
-                  <strong><%= @project.devlogs_count %></strong>
-                  <span>Devlogs</span>
+                <li class="project-show__stats-item">
+                  <strong class="project-show__stats-num"><%= @project.devlogs_count %></strong>
+                  <span class="project-show__stats-label">Devlogs</span>
                 </li>
-                <li>
-                  <strong><%= total_hours %></strong>
-                  <span>Total hours</span>
+                <li class="project-show__stats-item">
+                  <strong class="project-show__stats-num"><%= total_hours %></strong>
+                  <span class="project-show__stats-label">Total hours</span>
                 </li>
               </ul>
             </div>
@@ -156,7 +156,7 @@
               </label>
 
               <label class="project-show__started-check">
-                <input type="checkbox" aria-label="This project was started before June 1 2026, or was previously shipped to a Hack Club event.">
+                <input class="project-show__started-check-input" type="checkbox" aria-label="This project was started before June 1 2026, or was previously shipped to a Hack Club event.">
                 <span>This project was started <strong>before June 1 2026</strong>, or was <strong>previously shipped</strong> to a Hack Club event.</span>
               </label>
 
@@ -234,7 +234,7 @@
                   <% if members.any? %>
                     <ul class="project-show__avatars" aria-hidden="true">
                       <% members.first(4).each do |member| %>
-                        <li>
+                        <li class="project-show__avatars-item">
                           <% if member.slack_id.present? %>
                             <%= image_tag member.avatar, alt: member.display_name, class: "project-show__avatar" %>
                           <% else %>
@@ -256,13 +256,13 @@
               </div>
 
               <ul class="project-show__stats" aria-label="Project stats">
-                <li>
-                  <strong><%= @project.devlogs_count %></strong>
-                  <span>Devlogs</span>
+                <li class="project-show__stats-item">
+                  <strong class="project-show__stats-num"><%= @project.devlogs_count %></strong>
+                  <span class="project-show__stats-label">Devlogs</span>
                 </li>
-                <li>
-                  <strong><%= total_hours %></strong>
-                  <span>Total hours</span>
+                <li class="project-show__stats-item">
+                  <strong class="project-show__stats-num"><%= total_hours %></strong>
+                  <span class="project-show__stats-label">Total hours</span>
                 </li>
               </ul>
             </div>
@@ -302,14 +302,16 @@
 
     <% if is_member %>
       <nav class="project-show__actions" aria-label="Project actions">
-        <%= link_to "Post a devlog",
-                    new_project_devlog_path(@project),
+        <%= link_to new_project_devlog_path(@project),
                     class: "project-show__action project-show__action--secondary",
-                    data: { turbo_frame: "_top" } %>
-        <%= link_to "Create new ship 🚀",
-                    new_project_ships_path(@project),
+                    data: { turbo_frame: "_top" } do %>
+          Post a devlog<span class="project-show__action-icon" aria-hidden="true">+</span>
+        <% end %>
+        <%= link_to new_project_ships_path(@project),
                     class: "project-show__action project-show__action--primary",
-                    data: { turbo_frame: "_top" } %>
+                    data: { turbo_frame: "_top" } do %>
+          Create new ship<%= image_tag "icons/rocket.png", alt: "", class: "project-show__action-icon project-show__action-icon--img" %>
+        <% end %>
         <button type="button"
                 class="project-show__action project-show__action--secondary"
                 disabled
@@ -320,10 +322,10 @@
     <% if @show_project_onboarding %>
       <section class="project-show__onboarding" aria-labelledby="project-show-onboarding-title">
         <header class="project-show__onboarding-header">
-          <h2 id="project-show-onboarding-title">Welcome to your new project!</h2>
-          <p>
+          <h2 class="project-show__onboarding-header-title" id="project-show-onboarding-title">Welcome to your new project!</h2>
+          <p class="project-show__onboarding-header-body">
             Not sure what to do? Follow a guide to set up your project, or jump straight into it by
-            <%= link_to "editing your project info", project_path(@project, editing: true), data: { turbo_frame: "_top" } %>.
+            <%= link_to "editing your project info", project_path(@project, editing: true), class: "project-show__onboarding-header-link", data: { turbo_frame: "_top" } %>.
           </p>
         </header>
 
@@ -332,8 +334,8 @@
                       class: "project-show__onboarding-card",
                       data: { turbo_frame: "_top" } do %>
             <span class="project-show__onboarding-card-body">
-              <strong>Create your GitHub repository</strong>
-              <span>Learn to use a GitHub repository to store your project's code, and link it to your Stardance project.</span>
+              <strong class="project-show__onboarding-card-body-title">Create your GitHub repository</strong>
+              <span class="project-show__onboarding-card-body-text">Learn to use a GitHub repository to store your project's code, and link it to your Stardance project.</span>
             </span>
             <span class="project-show__onboarding-card-action">See tutorial →</span>
           <% end %>
@@ -344,8 +346,8 @@
                           class: "project-show__onboarding-card project-show__onboarding-card--button",
                           form: { class: "project-show__onboarding-form" } do %>
               <span class="project-show__onboarding-card-body">
-                <strong>Set up hour tracking with Hackatime</strong>
-                <span>Set up Hackatime in your editor to log hours for your project easily.</span>
+                <strong class="project-show__onboarding-card-body-title">Set up hour tracking with Hackatime</strong>
+                <span class="project-show__onboarding-card-body-text">Set up Hackatime in your editor to log hours for your project easily.</span>
               </span>
               <span class="project-show__onboarding-card-action">See tutorial →</span>
             <% end %>
@@ -356,8 +358,8 @@
                         class: "project-show__onboarding-card project-show__onboarding-card--mission",
                         data: { turbo_frame: "_top" } do %>
               <span class="project-show__onboarding-card-body">
-                <strong><%= @project_onboarding_mission.name %></strong>
-                <span><%= truncate(@project_onboarding_mission.description.to_s, length: 110) %></span>
+                <strong class="project-show__onboarding-card-body-title"><%= @project_onboarding_mission.name %></strong>
+                <span class="project-show__onboarding-card-body-text"><%= truncate(@project_onboarding_mission.description.to_s, length: 110) %></span>
               </span>
               <span class="project-show__onboarding-card-action">See tutorial →</span>
             <% end %>
@@ -372,8 +374,8 @@
 
     <% if @show_ai_coding_time_ignored_card %>
       <aside id="ai-coding-time-ignored-card" class="project-show__notice">
-        <h2>Note: AI coding time is being ignored</h2>
-        <p>Time spent coding entirely using AI agents like GitHub Copilot is being automatically filtered out of total project time. If you were using AI agents excessively and see discrepancies, this is likely why. Ask the support team in <a href="https://hackclub.slack.com/app_redirect?channel=C09MATKQM8C" rel="noopener" target="_blank">#flavortown-help</a> if you have questions.</p>
+        <h2 class="project-show__notice-title">Note: AI coding time is being ignored</h2>
+        <p class="project-show__notice-body">Time spent coding entirely using AI agents like GitHub Copilot is being automatically filtered out of total project time. If you were using AI agents excessively and see discrepancies, this is likely why. Ask the support team in <a class="project-show__notice-link" href="https://hackclub.slack.com/app_redirect?channel=C09MATKQM8C" rel="noopener" target="_blank">#flavortown-help</a> if you have questions.</p>
         <button class="project-show__notice-dismiss"
                 aria-label="Dismiss"
                 data-dismiss-url="<%= my_dismissals_path %>"

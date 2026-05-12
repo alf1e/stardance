@@ -24,7 +24,9 @@
                   } do |f| %>
 
   <header class="profile__header">
-    <div class="profile__banner" data-profile-edit-target="banner" style="--banner-image: url('<%= banner_url %>');">
+    <div class="profile__banner">
+      <%= image_tag banner_url, alt: "", class: "profile__banner-image",
+                    data: { "profile-edit-target": "banner" } %>
       <%= link_to home_path,
                   class: "profile__back",
                   "aria-label": "Back",
@@ -51,105 +53,105 @@
     </div>
 
     <div class="profile__card">
-      <div class="profile__avatar-wrap">
-        <%= image_tag(@user.avatar, alt: @user.display_name, class: "profile__avatar") %>
-      </div>
+      <div class="profile__top-row">
+        <div class="profile__identity">
+          <div class="profile__avatar-wrap">
+            <%= image_tag(@user.avatar, alt: @user.display_name, class: "profile__avatar") %>
+          </div>
 
-      <div class="profile__body">
-        <div class="profile__top-row">
-          <div class="profile__identity">
+          <div class="profile__identity-text">
             <h1 class="profile__handle">@<%= @user.display_name %></h1>
             <p class="profile__joined">Joined <%= @user.created_at.to_date.strftime("%-d %b %Y").downcase %></p>
           </div>
-
-          <ul class="profile__stats" aria-label="User stats">
-            <li class="profile__stat"><span class="profile__stat-num"><%= @stats[:devlogs_count] %></span><span class="profile__stat-label">Devlogs</span></li>
-            <li class="profile__stat"><span class="profile__stat-num"><%= @stats[:hours_all_time] %></span><span class="profile__stat-label">Total hours</span></li>
-            <li class="profile__stat"><span class="profile__stat-num"><%= @stats[:projects_count] %></span><span class="profile__stat-label">Projects</span></li>
-            <li class="profile__stat"><span class="profile__stat-num"><%= @stats[:ships_count] %></span><span class="profile__stat-label">Ships</span></li>
-            <li class="profile__stat"><span class="profile__stat-num"><%= @stats[:votes_count] %></span><span class="profile__stat-label">Votes</span></li>
-          </ul>
         </div>
 
-        <div class="profile__bio" data-profile-edit-target="bioView">
-          <% if @user.bio.present? %>
-            <%= render_bio(@user.bio) %>
-          <% elsif own_profile %>
-            <span class="profile__bio-empty">Add a bio to tell folks who you are.</span>
-          <% end %>
-        </div>
+        <ul class="profile__stats" aria-label="User stats">
+          <li class="profile__stat"><span class="profile__stat-num"><%= @stats[:devlogs_count] %></span><span class="profile__stat-label">Devlogs</span></li>
+          <li class="profile__stat"><span class="profile__stat-num"><%= @stats[:hours_all_time] %></span><span class="profile__stat-label">Total hours</span></li>
+          <li class="profile__stat"><span class="profile__stat-num"><%= @stats[:projects_count] %></span><span class="profile__stat-label">Projects</span></li>
+          <li class="profile__stat"><span class="profile__stat-num"><%= @stats[:ships_count] %></span><span class="profile__stat-label">Ships</span></li>
+          <li class="profile__stat"><span class="profile__stat-num"><%= @stats[:votes_count] %></span><span class="profile__stat-label">Votes</span></li>
+        </ul>
+      </div>
 
-        <% if own_profile %>
-          <div class="profile__bio-editor"
-               data-profile-edit-target="bioEdit"
-               data-controller="bio-editor"
-               data-bio-editor-users-url-value="<%= search_users_path(format: :json) %>"
-               data-bio-editor-projects-url-value="<%= search_projects_path(format: :json) %>"
-               data-bio-editor-initial-value="<%= @user.bio.to_s %>"
-               hidden>
-            <div class="profile__bio-input"
-                 contenteditable="true"
-                 role="textbox"
-                 aria-label="Edit bio. Type @ to mention a user, $ to link a project."
-                 data-bio-editor-target="editor"
-                 data-action="input->bio-editor#onInput keydown->bio-editor#onKeydown blur->bio-editor#onBlur"></div>
-            <%= f.hidden_field :bio, data: { "bio-editor-target": "hidden" } %>
-            <div class="profile__bio-suggest"
-                 data-bio-editor-target="suggest"
-                 role="listbox"
-                 hidden></div>
-            <p class="profile__bio-hint">Type <kbd>@</kbd> to mention a user, <kbd>$</kbd> to link a project.</p>
-          </div>
+      <div class="profile__bio" data-profile-edit-target="bioView">
+        <% if @user.bio.present? %>
+          <%= render_bio(@user.bio) %>
+        <% elsif own_profile %>
+          <span class="profile__bio-empty">Add a bio to tell folks who you are.</span>
         <% end %>
+      </div>
 
-        <div class="profile__footer">
-          <p class="profile__follow-counts">
-            <%= button_tag type: "button",
-                           class: "profile__follow-count",
-                           data: { action: "click->profile-modal#open",
-                                   "profile-modal-url-param": following_user_path(@user),
-                                   "profile-modal-title-param": "Following" } do %>
-              <strong><%= @following_count %></strong> following
-            <% end %>
-            <%= button_tag type: "button",
-                           class: "profile__follow-count",
-                           data: { action: "click->profile-modal#open",
-                                   "profile-modal-url-param": followers_user_path(@user),
-                                   "profile-modal-title-param": "Followers" } do %>
-              <strong><%= @follower_count %></strong> followers
-            <% end %>
-          </p>
+      <% if own_profile %>
+        <div class="profile__bio-editor"
+             data-profile-edit-target="bioEdit"
+             data-controller="bio-editor"
+             data-bio-editor-users-url-value="<%= search_users_path(format: :json) %>"
+             data-bio-editor-projects-url-value="<%= search_projects_path(format: :json) %>"
+             data-bio-editor-initial-value="<%= @user.bio.to_s %>"
+             hidden>
+          <div class="profile__bio-input"
+               contenteditable="true"
+               role="textbox"
+               aria-label="Edit bio. Type @ to mention a user, $ to link a project."
+               data-bio-editor-target="editor"
+               data-action="input->bio-editor#onInput keydown->bio-editor#onKeydown blur->bio-editor#onBlur"></div>
+          <%= f.hidden_field :bio, data: { "bio-editor-target": "hidden" } %>
+          <div class="profile__bio-suggest"
+               data-bio-editor-target="suggest"
+               role="listbox"
+               hidden></div>
+          <p class="profile__bio-hint">Type <kbd>@</kbd> to mention a user, <kbd>$</kbd> to link a project.</p>
+        </div>
+      <% end %>
 
-          <div class="profile__actions">
-            <% if own_profile %>
-              <button type="button"
-                      class="profile__action-btn"
-                      data-action="click->profile-edit#cancel"
-                      data-profile-edit-target="cancelBtn"
-                      hidden>Cancel</button>
-              <button type="button"
-                      class="profile__action-btn profile__action-btn--primary"
-                      data-action="click->profile-edit#enter"
-                      data-profile-edit-target="editBtn">Edit profile</button>
-              <button type="submit"
-                      class="profile__action-btn profile__action-btn--primary"
-                      data-profile-edit-target="saveBtn"
-                      hidden>Save</button>
-            <% elsif current_user %>
-              <%# link_to + data-turbo-method instead of button_to: button_to renders %>
-              <%# its own <form>, which HTML5 parsing strips when nested inside the %>
-              <%# profile-edit form_with — clicking it would otherwise submit the %>
-              <%# wrong form. %>
-              <%= link_to user_follow_path(@user),
-                          class: [ "profile__action-btn", "profile__action-btn--primary", ("profile__action-btn--following" if @viewer_follows) ].compact.join(" "),
-                          data: { turbo_method: (@viewer_follows ? :delete : :post), turbo_frame: "_top" } do %>
-                <span class="profile__follow-label-default"><%= @viewer_follows ? "Following" : "Follow" %></span>
-                <% if @viewer_follows %>
-                  <span class="profile__follow-label-hover">Unfollow</span>
-                <% end %>
+      <div class="profile__footer">
+        <p class="profile__follow-counts">
+          <%= button_tag type: "button",
+                         class: "profile__follow-count",
+                         data: { action: "click->profile-modal#open",
+                                 "profile-modal-url-param": following_user_path(@user),
+                                 "profile-modal-title-param": "Following" } do %>
+            <strong><%= @following_count %></strong> following
+          <% end %>
+          <%= button_tag type: "button",
+                         class: "profile__follow-count",
+                         data: { action: "click->profile-modal#open",
+                                 "profile-modal-url-param": followers_user_path(@user),
+                                 "profile-modal-title-param": "Followers" } do %>
+            <strong><%= @follower_count %></strong> followers
+          <% end %>
+        </p>
+
+        <div class="profile__actions">
+          <% if own_profile %>
+            <button type="button"
+                    class="profile__action-btn"
+                    data-action="click->profile-edit#cancel"
+                    data-profile-edit-target="cancelBtn"
+                    hidden>Cancel</button>
+            <button type="button"
+                    class="profile__action-btn profile__action-btn--primary"
+                    data-action="click->profile-edit#enter"
+                    data-profile-edit-target="editBtn">Edit profile</button>
+            <button type="submit"
+                    class="profile__action-btn profile__action-btn--primary"
+                    data-profile-edit-target="saveBtn"
+                    hidden>Save</button>
+          <% elsif current_user %>
+            <%# link_to + data-turbo-method instead of button_to: button_to renders %>
+            <%# its own <form>, which HTML5 parsing strips when nested inside the %>
+            <%# profile-edit form_with — clicking it would otherwise submit the %>
+            <%# wrong form. %>
+            <%= link_to user_follow_path(@user),
+                        class: [ "profile__action-btn", "profile__action-btn--primary", ("profile__action-btn--following" if @viewer_follows) ].compact.join(" "),
+                        data: { turbo_method: (@viewer_follows ? :delete : :post), turbo_frame: "_top" } do %>
+              <span class="profile__follow-label-default"><%= @viewer_follows ? "Following" : "Follow" %></span>
+              <% if @viewer_follows %>
+                <span class="profile__follow-label-hover">Unfollow</span>
               <% end %>
             <% end %>
-          </div>
+          <% end %>
         </div>
       </div>
     </div>
