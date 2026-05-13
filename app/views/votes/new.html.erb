@@ -53,10 +53,10 @@
 
     <%= form_with url: skip_votes_path, method: :post, data: { turbo: false }, class: "votes-new__skip-form" do %>
       <%= hidden_field_tag :suggestion_token, @suggestion_token %>
-      <%= render ButtonComponent.new(
-        icon: "icons/skip_forward_fill.svg",
-        color: :blue,
-        variant: :borderless,
+      <%= render ActionButtonComponent.new(
+        leading_icon: "icons/skip_forward_fill.svg",
+        size: :small,
+        variant: :secondary,
         type: :submit,
         text: "Skip",
         disable_with: "Skipping..."

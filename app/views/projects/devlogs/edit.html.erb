@@ -71,8 +71,8 @@
       </div>
 
       <div class="projects-new__actions">
-        <%= render ButtonComponent.new(text: "Cancel", href: project_path(@project), color: :red, variant: :borderless) %>
-        <%= render ButtonComponent.new(text: "Save Changes", color: :brown, type: :submit, disable_with: "Saving...", data: { "upload-form-target": "submit" }) %>
+        <%= render ActionButtonComponent.new(text: "Cancel", href: project_path(@project), size: :small, variant: :secondary) %>
+        <%= render ActionButtonComponent.new(text: "Save Changes", size: :large, variant: :primary, type: :submit, disable_with: "Saving...", data: { "upload-form-target": "submit" }) %>
       </div>
     <% end %>
 

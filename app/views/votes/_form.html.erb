@@ -24,11 +24,11 @@
   </div>
 <% end %>
 
-<%= render ButtonComponent.new(
+<%= render ActionButtonComponent.new(
   text: "Submit Vote",
-  color: :brown,
+  size: :large,
+  variant: :primary,
   type: :submit,
-  variant: :borderless,
   form: "vote-score-form",
   disable_with: "Submitting vote..."
 ) %>
@@ -42,8 +42,6 @@
     <button type="button" class="modal__actions-close" data-action="click->modal#close">
       Review scores
     </button>
-    <button type="button" class="btn btn--brown slim" data-action="click->vote-tracker#confirmExtreme">
-      Submit anyway
-    </button>
+    <%= render ActionButtonComponent.new(text: "Submit anyway", type: :button, size: :small, variant: :primary, data: { action: "click->vote-tracker#confirmExtreme" }) %>
   </div>
 </dialog>
