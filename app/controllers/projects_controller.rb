@@ -174,7 +174,6 @@ class ProjectsController < ApplicationController
       redirect_to url_from(params[:return_to]) || project_path(@project)
     else
       flash.now[:alert] = "Failed to update project: #{@project.errors.full_messages.join(', ')}"
-      render_update_error
     end
   end
 
@@ -497,21 +496,5 @@ class ProjectsController < ApplicationController
   def load_project_times
     result = current_user.try_sync_hackatime_data!
     @project_times = result&.dig(:projects) || {}
-  end
-
-  def render_update_error
-    if url_from(params[:return_to])&.include?("ships")
-      @hide_sidebar = true
-      @body_class = "ship-page"
-      @project_times = current_user.try_sync_hackatime_data!&.dig(:projects) || {}
-      @step = 1
-      render "projects/ships/new", status: :unprocessable_entity
-    elsif params[:inline_project_show].present?
-      @body_class = "app-layout-page"
-      prepare_project_show_context
-      render :show, status: :unprocessable_entity
-    else
-      render :edit, status: :unprocessable_entity
-    end
   end
 end
