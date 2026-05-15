@@ -46,9 +46,6 @@ application.register("falling-star", FallingStarController);
 import FaqAccordionController from "./faq_accordion_controller";
 application.register("faq-accordion", FaqAccordionController);
 
-import FileUploadController from "./file_upload_controller";
-application.register("file-upload", FileUploadController);
-
 import FlashController from "./flash_controller";
 application.register("flash", FlashController);
 
@@ -168,9 +165,6 @@ application.register("tutorial-steps-expand", TutorialStepsExpandController);
 
 import TutorialVideoModalController from "./tutorial_video_modal_controller";
 application.register("tutorial-video-modal", TutorialVideoModalController);
-
-import UploadFormController from "./upload_form_controller";
-application.register("upload-form", UploadFormController);
 
 import UserRefModalController from "./user_ref_modal_controller";
 application.register("user-ref-modal", UserRefModalController);
