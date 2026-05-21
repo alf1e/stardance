@@ -2,7 +2,7 @@ class Admin::DevlogReviewsController < Admin::ApplicationController
   before_action :set_devlog_review
 
   def update
-    authorize :admin, :access_admin_endpoints?
+    authorize :admin, :access_reviews?
 
     # Log the incoming params for debugging
     Rails.logger.debug "DevlogReview ##{@devlog_review.id} update params: #{devlog_review_params.inspect}"
