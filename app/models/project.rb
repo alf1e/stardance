@@ -34,6 +34,8 @@
 #
 #  fk_rails_...  (marked_fire_by_id => users.id)
 #
+require "net/http"
+
 class Project < ApplicationRecord
   include AASM
   include SoftDeletable
@@ -259,6 +261,12 @@ class Project < ApplicationRecord
         passed: demo_url.present?
       },
       {
+        key: :demo_url_reachable,
+        label: "Your demo link must be reachable (not returning a 404 or error)",
+        tooltip: "We checked your demo URL and it returned an error. Make sure it's publicly accessible.",
+        passed: demo_url.blank? || url_reachable?(demo_url)
+      },
+      {
         key: :repo_url,
         label: "Add a public GitHub URL with your source code",
         tooltip: "A link to your public GitHub repository so others can view your code.",
@@ -281,6 +289,12 @@ class Project < ApplicationRecord
         label: "Add a README URL to your project",
         tooltip: "A link to your README file, e.g. the raw GitHub URL of your README.md.",
         passed: readme_url.present?
+      },
+      {
+        key: :readme_url_reachable,
+        label: "Your README URL must be reachable",
+        tooltip: "We checked your README URL and it returned an error. Make sure it's a valid, publicly accessible link.",
+        passed: readme_url.blank? || url_reachable?(readme_url)
       },
       {
         key: :description,
@@ -340,7 +354,7 @@ class Project < ApplicationRecord
     shipping_requirements.select { |elem| !elem[:passed] || elem[:label] }
   end
 
-  def shippable? = true
+  def shippable? = ship_blocking_errors.empty?
 
   def ship_blocking_errors = shipping_requirements.reject { |r| r[:passed] }.map { |r| r[:label] }
 
@@ -404,5 +418,35 @@ class Project < ApplicationRecord
 
   def notify_slack_channel
     PostCreationToSlackJob.perform_later(self)
+  end
+
+  def url_reachable?(url)
+    cache_key = "url_reachable_#{Digest::MD5.hexdigest(url)}"
+    Rails.cache.fetch(cache_key, expires_in: 5.minutes) do
+      uri = URI.parse(url)
+      response = head_with_redirects(uri)
+      response.is_a?(Net::HTTPSuccess) || response.is_a?(Net::HTTPRedirection)
+    end
+  rescue URI::InvalidURIError, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH,
+         Net::OpenTimeout, Net::ReadTimeout, OpenSSL::SSL::SSLError
+    false
+  end
+
+  def head_with_redirects(uri, limit = 3)
+    if limit <= 0
+      Net::HTTPServiceUnavailable.new("1.1", "503", "Too many redirects")
+    else
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = (uri.scheme == "https")
+      http.open_timeout = 10
+      http.read_timeout = 10
+      response = http.request_head(uri.request_uri)
+
+      if response.is_a?(Net::HTTPRedirection) && response["location"]
+        head_with_redirects(URI.parse(response["location"]), limit - 1)
+      else
+        response
+      end
+    end
   end
 end
