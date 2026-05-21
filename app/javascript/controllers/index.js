@@ -19,6 +19,9 @@ application.register("command-palette", CommandPaletteController);
 import ComposerController from "./composer_controller";
 application.register("composer", ComposerController);
 
+import EmojiPickerController from "./emoji_picker_controller";
+application.register("emoji-picker", EmojiPickerController);
+
 import CountdownClockController from "./countdown_clock_controller";
 application.register("countdown-clock", CountdownClockController);
 

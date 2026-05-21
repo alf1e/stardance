@@ -192,55 +192,16 @@
     }
   }
 
-  &__footer {
+  &__info-wrap {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-m);
+    flex-direction: column;
+    gap: var(--space-xs);
     padding-top: var(--space-s);
-    padding-left: 56px;
+    margin-left: 56px;
     border-top: 1px solid var(--color-space-border);
 
-    @media (max-width: 640px) {
-      padding-left: 0;
-    }
-  }
-
-  &__attach-wrap {
-    max-height: 0;
-    overflow: hidden;
-    pointer-events: none;
-    transition: max-height 400ms ease;
-
-    &--expanded {
-      max-height: 120px;
-      pointer-events: auto;
-    }
-  }
-
-  &__attach {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-s);
-    min-height: 0;
-    margin: var(--space-xs) 0 var(--space-xs) 56px;
-    padding: var(--space-l);
-    border: 2px dashed var(--color-space-border);
-    border-radius: var(--border-radius);
-    color: var(--color-space-text-muted);
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    font-size: var(--font-size-s);
-    transition:
-      border-color 160ms ease,
-      color 160ms ease;
-
-    &:hover,
-    &:focus-within {
-      color: var(--color-space-text);
-      border-color: var(--color-space-text-muted);
+    &[hidden] {
+      display: none;
     }
 
     @media (max-width: 640px) {
@@ -248,16 +209,82 @@
     }
   }
 
-  &__attach-icon {
-    width: 22px;
-    height: 22px;
-  }
-
   &__file-input {
     position: absolute;
-    inset: 0;
-    opacity: 0;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-m);
+    padding-top: var(--space-xs);
+    margin-left: 56px;
+
+    @media (max-width: 640px) {
+      margin-left: 0;
+    }
+  }
+
+  &__tools {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xxs);
+  }
+
+  &__tool-btn {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--color-space-text-muted);
     cursor: pointer;
+    transition:
+      color 160ms ease,
+      background 160ms ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--color-space-accent);
+      background: var(--color-space-accent-soft);
+    }
+  }
+
+  &__tool-icon {
+    width: 25px;
+    height: 25px;
+  }
+
+  &__emoji-wrap {
+    position: relative;
+  }
+
+  &__emoji-popover {
+    position: absolute;
+    top: calc(100% + var(--space-xs));
+    left: 0;
+    z-index: 100;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+
+    em-emoji-picker {
+      --rgb-background: 52, 54, 81;
+      --rgb-input: 96, 102, 132;
+      --rgb-color: 255, 255, 255;
+      --font-family: "Exo 2", sans-serif;
+      max-height: 340px;
+    }
   }
 
   &__submit {
@@ -269,6 +296,10 @@
     display: flex;
     align-items: center;
     gap: var(--space-xs);
+
+    &[hidden] {
+      display: none;
+    }
   }
 
   &__info-text {
@@ -299,15 +330,18 @@
 
     &[data-count="1"] {
       grid-template-columns: 1fr;
+      height: 220px;
     }
 
     &[data-count="2"] {
       grid-template-columns: 1fr 1fr;
+      height: 180px;
     }
 
     &[data-count="3"] {
       grid-template-columns: 1fr 1fr;
       grid-template-rows: 1fr 1fr;
+      height: 220px;
 
       > :first-child {
         grid-row: 1 / -1;
@@ -317,6 +351,7 @@
     &[data-count="4"] {
       grid-template-columns: 1fr 1fr;
       grid-template-rows: 1fr 1fr;
+      height: 220px;
     }
 
     @media (max-width: 640px) {
@@ -329,19 +364,13 @@
     overflow: hidden;
     border-radius: calc(var(--border-radius) * 0.4);
     background: rgba(217, 217, 217, 0.45);
-    aspect-ratio: 16 / 9;
-  }
-
-  &__grid[data-count="3"] &__preview,
-  &__grid[data-count="4"] &__preview {
-    aspect-ratio: auto;
   }
 
   &__preview-image,
   &__preview-video {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     display: block;
   }
 

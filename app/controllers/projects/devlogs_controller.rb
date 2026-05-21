@@ -30,7 +30,10 @@ class Projects::DevlogsController < ApplicationController
   def preview_time
     authorize @project, :create_devlog?
     load_preview_time
-    render json: { preview_time: @preview_time }
+    respond_to do |format|
+      format.html { render partial: "projects/devlogs/preview_time", locals: { preview_time: @preview_time, preview_seconds: @preview_seconds } }
+      format.json { render json: { preview_time: @preview_time } }
+    end
   end
 
   def edit
