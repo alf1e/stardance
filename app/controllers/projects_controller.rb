@@ -206,10 +206,27 @@ class ProjectsController < ApplicationController
     link_hackatime_projects if success
     # 2nd check w/ @project.errors.empty? is not redudant. this is ensures that hackatime is linked!
     if success && @project.errors.empty?
-      flash[:notice] = "Project updated successfully"
-      redirect_to url_from(params[:return_to]) || project_path(@project)
+      respond_to do |format|
+        format.turbo_stream do
+          flash.now[:notice] = "Project updated successfully"
+          render turbo_stream: turbo_stream.update("flash-region", partial: "shared/flash")
+        end
+        format.html do
+          flash[:notice] = "Project updated successfully"
+          redirect_to url_from(params[:return_to]) || project_path(@project)
+        end
+      end
     else
-      flash.now[:alert] = "Failed to update project: #{@project.errors.full_messages.join(', ')}"
+      respond_to do |format|
+        format.turbo_stream do
+          flash.now[:alert] = "Failed to update project: #{@project.errors.full_messages.join(', ')}"
+          render turbo_stream: turbo_stream.update("flash-region", partial: "shared/flash"), status: :unprocessable_entity
+        end
+        format.html do
+          flash[:alert] = "Failed to update project: #{@project.errors.full_messages.join(', ')}"
+          redirect_to url_from(params[:return_to]) || edit_project_path(@project)
+        end
+      end
     end
   end
 

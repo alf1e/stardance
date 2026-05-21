@@ -11,11 +11,25 @@ class UsersController < ApplicationController
 
   def update
     if @user.update(user_params)
-      redirect_to @user, notice: "Profile updated."
+      respond_to do |format|
+        format.turbo_stream do
+          flash.now[:notice] = "Profile updated."
+          render turbo_stream: turbo_stream.update("flash-region", partial: "shared/flash")
+        end
+        format.html { redirect_to @user, notice: "Profile updated." }
+      end
     else
-      flash.now[:alert] = @user.errors.full_messages.to_sentence
-      load_profile("feed")
-      render :show, status: :unprocessable_entity
+      respond_to do |format|
+        format.turbo_stream do
+          flash.now[:alert] = @user.errors.full_messages.to_sentence
+          render turbo_stream: turbo_stream.update("flash-region", partial: "shared/flash"), status: :unprocessable_entity
+        end
+        format.html do
+          flash.now[:alert] = @user.errors.full_messages.to_sentence
+          load_profile("feed")
+          render :show, status: :unprocessable_entity
+        end
+      end
     end
   end
 
