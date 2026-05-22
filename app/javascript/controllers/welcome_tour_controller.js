@@ -1,7 +1,15 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["spotlight", "tooltip", "text", "back", "next", "counter"];
+  static targets = [
+    "spotlight",
+    "tooltip",
+    "text",
+    "subtitle",
+    "back",
+    "next",
+    "counter",
+  ];
 
   static values = {
     step: { type: Number, default: 0 },
@@ -32,6 +40,7 @@ export default class extends Controller {
   }
 
   disconnect() {
+    this._clearAutoAdvance();
     window.removeEventListener("resize", this._onReflow);
     window.removeEventListener("scroll", this._onReflow);
     document.removeEventListener("keydown", this._onKey);
@@ -42,10 +51,12 @@ export default class extends Controller {
 
   stepValueChanged() {
     if (!this.hasSpotlightTarget) return;
+    this._clearAutoAdvance();
     this._render();
   }
 
   next() {
+    this._clearAutoAdvance();
     if (this.stepValue >= this.stepsValue.length - 1) {
       this.finish();
     } else {
@@ -54,11 +65,20 @@ export default class extends Controller {
   }
 
   back() {
+    this._clearAutoAdvance();
     if (this.stepValue > 0) this.stepValue -= 1;
   }
 
   finish() {
+    this._clearAutoAdvance();
     this.element.remove();
+  }
+
+  _clearAutoAdvance() {
+    if (this._autoAdvanceTimer) {
+      clearTimeout(this._autoAdvanceTimer);
+      this._autoAdvanceTimer = null;
+    }
   }
 
   _onReflow() {
@@ -83,6 +103,20 @@ export default class extends Controller {
     }
 
     this.element.classList.toggle("welcome-tour--intro", !!step.intro);
+    this.element.classList.toggle(
+      "welcome-tour--ceremonial",
+      !!step.ceremonial,
+    );
+
+    if (this.hasSubtitleTarget) {
+      if (step.subtitle) {
+        this.subtitleTarget.textContent = step.subtitle;
+        this.subtitleTarget.hidden = false;
+      } else {
+        this.subtitleTarget.textContent = "";
+        this.subtitleTarget.hidden = true;
+      }
+    }
 
     if (step.intro) {
       this._renderIntro(step);
@@ -137,6 +171,7 @@ export default class extends Controller {
     this.nextTarget.textContent = isLast
       ? "Finish! →"
       : `Next (${this.stepValue + 1}/${this.stepsValue.length}) →`;
+    this.nextTarget.hidden = false;
     this.backTarget.hidden = this.stepValue === 0;
 
     this.element.classList.toggle(
@@ -184,12 +219,25 @@ export default class extends Controller {
       : `Next (${this.stepValue + 1}/${this.stepsValue.length}) →`;
     this.backTarget.hidden = this.stepValue === 0;
 
+    // On auto-advance steps the user shouldn't need to click — hide the nav
+    // and let the timer take us to the next step.
+    const auto = !!step.autoAdvance;
+    this.nextTarget.hidden = auto;
+    if (auto) this.backTarget.hidden = true;
+
     const tooltip = this.tooltipTarget;
     const tooltipRect = tooltip.getBoundingClientRect();
     Object.assign(tooltip.style, {
       top: `${Math.max(16, window.innerHeight / 2 - tooltipRect.height / 2)}px`,
       left: `${Math.max(16, window.innerWidth / 2 - tooltipRect.width / 2)}px`,
     });
+
+    if (auto) {
+      this._autoAdvanceTimer = setTimeout(
+        () => this.next(),
+        step.autoAdvance,
+      );
+    }
   }
 
   _findTarget(selector) {

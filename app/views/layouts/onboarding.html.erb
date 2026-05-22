@@ -13,6 +13,12 @@
     <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
   </head>
   <body class="onboarding-body">
+    <div class="onboarding-ambient" aria-hidden="true">
+      <video class="onboarding-ambient__video" autoplay muted loop playsinline preload="auto">
+        <source src="<%= asset_path("stardance-bg.webm") %>" type="video/webm">
+      </video>
+      <div class="onboarding-ambient__overlay"></div>
+    </div>
     <%= render "shared/flash" %>
     <%= yield %>
   </body>

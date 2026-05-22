@@ -3,23 +3,28 @@
   <%= render Onboarding::ProgressBarComponent.new(step: :experience) %>
 
   <div class="onboarding-screen__content">
-    <p class="onboarding-screen__eyebrow">This includes coding experience, hardware projects, uhhhh</p>
-    <h1 class="onboarding-screen__title">Do u have experience making technical projects?</h1>
+    <h1 class="onboarding-screen__title">How much have you made on your own before?</h1>
+    <p class="onboarding-screen__subhead">Coding experience, hardware projects, anything technical. There's no wrong answer, and we'll use this to tailor your experience to your better!</p>
 
     <%= form_with url: onboarding_experience_path, method: :post, local: true,
                    class: "onboarding-experience__form" do %>
       <div class="onboarding-experience__cards">
-        <%= render Onboarding::ChoiceCardComponent.new(name: "level", value: "none", variant: :stacked) do %>
-          I have no coding experience. (It's okay, we'll be here to help!)
-        <% end %>
-        <%= render Onboarding::ChoiceCardComponent.new(name: "level", value: "little", variant: :stacked) do %>
-          I know a little bit maybe/ learnt some in school but never made anything.
-        <% end %>
-        <%= render Onboarding::ChoiceCardComponent.new(name: "level", value: "some", variant: :stacked) do %>
-          I've made a project or two before :)
-        <% end %>
-        <%= render Onboarding::ChoiceCardComponent.new(name: "level", value: "experienced", variant: :stacked) do %>
-          I make technical projects all the time!
+        <% [
+          [ "none",        "Total beginner, never really coded or built anything" ],
+          [ "little",      "I've done some school stuff, but never on my own" ],
+          [ "some",        "I've made a project or two on my own :)" ],
+          [ "experienced", "I'm always building something!" ]
+        ].each do |value, label| %>
+          <%= render ActionButtonComponent.new(
+                text: label,
+                variant: :secondary,
+                size: :large,
+                surface: :dark,
+                type: :submit,
+                name: "level",
+                value: value,
+                data: { action: "click->onboarding-transition#press" }
+              ) %>
         <% end %>
       </div>
     <% end %>

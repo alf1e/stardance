@@ -343,29 +343,37 @@
     <% if is_member %>
       <% if @hackatime_linked %>
         <nav class="project-show__actions" aria-label="Project actions">
-          <button type="button"
-                  class="project-show__action project-show__action--secondary"
-                  onclick="document.getElementById('composer-modal-' + <%= @project.id.to_json %>).showModal()">
-            Post a devlog<span class="project-show__action-icon" aria-hidden="true">+</span>
-          </button>
-          <%= link_to new_project_ships_path(@project),
-                      class: "project-show__action project-show__action--primary",
-                      data: { turbo_frame: "_top" } do %>
-            Create new ship<%= image_tag "icons/rocket.png", alt: "", class: "project-show__action-icon project-show__action-icon--img" %>
-          <% end %>
-          <button type="button"
-                  class="project-show__action project-show__action--secondary"
-                  disabled
-                  title="Manage teammates — coming soon">Manage teammates</button>
+          <%= render ActionButtonComponent.new(
+                text: "Post a devlog +",
+                variant: :secondary,
+                type: :button,
+                onclick: "document.getElementById('composer-modal-' + #{@project.id.to_json}).showModal()"
+              ) %>
+          <%= render ActionButtonComponent.new(
+                text: "Create new ship",
+                variant: :primary,
+                href: new_project_ships_path(@project),
+                icon: "icons/rocket.png",
+                data: { turbo_frame: "_top" }
+              ) %>
+          <%= render ActionButtonComponent.new(
+                text: "Manage teammates",
+                variant: :secondary,
+                type: :button,
+                disabled: true,
+                title: "Manage teammates — coming soon"
+              ) %>
         </nav>
       <% else %>
-        <nav class="project-show__actions project-show__actions--single" aria-label="Project actions">
-          <%= button_to "/auth/hackatime",
-                        method: :post,
-                        class: "project-show__action project-show__action--primary project-show__action--full",
-                        form: { class: "project-show__action-form" } do %>
-            Link Hackatime to track your project time<%= image_tag "icons/right-arrow.svg", alt: "", class: "project-show__action-icon project-show__action-icon--img" %>
-          <% end %>
+        <nav class="project-show__actions" aria-label="Project actions">
+          <%= render ActionButtonComponent.new(
+                text: "Link Hackatime to track your project time",
+                variant: :primary,
+                href: "/auth/hackatime",
+                method: :post,
+                icon: "icons/right-arrow.svg",
+                class: "project-show__hackatime-cta"
+              ) %>
         </nav>
       <% end %>
     <% end %>

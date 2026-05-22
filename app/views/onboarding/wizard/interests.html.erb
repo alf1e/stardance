@@ -3,9 +3,9 @@
   <%= render Onboarding::ProgressBarComponent.new(step: :interests) %>
 
   <div class="onboarding-screen__content">
-    <p class="onboarding-screen__eyebrow">ok anywayssssss</p>
-    <h1 class="onboarding-screen__title onboarding-screen__title--lower">what kind of stuff do u like?</h1>
-    <p class="onboarding-screen__subhead">pick as many as you want !!!!!!!!!!!!!!!!!!!!!!!!!</p>
+    <p class="onboarding-screen__eyebrow">Anyways...</p>
+    <h1 class="onboarding-screen__title">What kind of stuff are you interested in?</h1>
+    <p class="onboarding-screen__subhead">Pick as many as you want! This helps us find resources and cool stuff that are right for you.</p>
 
     <%= form_with url: onboarding_interests_path, method: :post, local: true,
                    data: { controller: "onboarding-interests", action: "change->onboarding-interests#toggle" },
@@ -16,7 +16,12 @@
             <%= check_box_tag "interests[]", slug, @selected.include?(slug),
                               class: "onboarding-interests__checkbox",
                               data: { onboarding_interests_target: "interest" } %>
-            <span class="onboarding-interests__label"><%= slug.tr("_", " ") %></span>
+            <span class="onboarding-interests__art" aria-hidden="true">
+              <span class="onboarding-interests__art-shape onboarding-interests__art-shape--a"></span>
+              <span class="onboarding-interests__art-shape onboarding-interests__art-shape--b"></span>
+              <span class="onboarding-interests__art-shape onboarding-interests__art-shape--c"></span>
+            </span>
+            <span class="onboarding-interests__label"><%= User::INTEREST_LABELS[slug] %></span>
           </label>
         <% end %>
         <label class="onboarding-interests__tile onboarding-interests__tile--unknown">
@@ -24,19 +29,22 @@
                             @selected == [ User::INTERESTS_UNKNOWN ],
                             class: "onboarding-interests__checkbox",
                             data: { onboarding_interests_target: "unknown" } %>
-          <span class="onboarding-interests__label">i don't know</span>
+          <span class="onboarding-interests__label">I'm not sure yet. I wanna see everything!</span>
         </label>
+        <%= render ActionButtonComponent.new(
+              text: "Next",
+              variant: :primary,
+              size: :large,
+              type: :submit,
+              icon: "icons/right-arrow.svg",
+              disabled: @selected.empty?,
+              class: "onboarding-interests__submit",
+              data: {
+                onboarding_interests_target: "submit",
+                action: "click->onboarding-transition#press"
+              }
+            ) %>
       </div>
-      <%= render SpecialActionButtonComponent.new(
-            text: "Next",
-            type: :submit,
-            disabled: @selected.empty?,
-            class: "onboarding-interests__submit",
-            data: {
-              onboarding_interests_target: "submit",
-              action: "click->onboarding-transition#press"
-            }
-          ) %>
     <% end %>
   </div>
 </main>
