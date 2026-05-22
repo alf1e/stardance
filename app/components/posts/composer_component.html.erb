@@ -1,7 +1,7 @@
 <% if enabled? %>
   <section class="feed-composer"
            aria-label="Create a devlog"
-           data-controller="composer"
+           data-controller="composer emoji-picker"
            data-composer-target="dropZone"
            data-composer-max-files-value="<%= Post::Devlog::MAX_ATTACHMENTS %>"
            data-composer-preview-time-url-value="<%= preview_time_url %>"
@@ -37,40 +37,61 @@
           <%= f.label :body, "What are you working on?", class: "feed-composer__label" %>
           <%= f.text_area :body,
                 class: "feed-composer__textarea",
-                rows: 3,
+                rows: 1,
                 maxlength: Post::Devlog::BODY_MAX_LENGTH,
                 placeholder: "What are you working on?",
                 aria: { label: "Devlog text" },
                 data: { composer_target: "textarea",
+                        emoji_picker_target: "textarea",
                         action: "focus->composer#showInfo input->composer#autogrow input->composer#refreshSubmit blur->composer#collapseIfEmpty" } %>
         </div>
       </div>
 
-      <div class="feed-composer__attach-wrap" data-composer-target="attachWrap">
-        <label class="feed-composer__attach">
-          <%= inline_svg_tag "icons/paper.svg", class: "feed-composer__attach-icon" %>
-          <span class="feed-composer__attach-text">Drop a screenshot here, or click to attach</span>
-          <%= f.file_field :attachments,
-                multiple: true,
-                accept: Post::Devlog::ACCEPTED_CONTENT_TYPES.join(","),
-                class: "feed-composer__file-input",
-                data: { composer_target: "fileInput",
-                        action: "change->composer#selectFiles" } %>
-        </label>
-      </div>
+      <%= f.file_field :attachments,
+            multiple: true,
+            accept: Post::Devlog::ACCEPTED_CONTENT_TYPES.join(","),
+            class: "feed-composer__file-input",
+            data: { composer_target: "fileInput",
+                    action: "change->composer#selectFiles" } %>
 
       <div class="feed-composer__grid" data-composer-target="grid" data-count="0" hidden></div>
 
-      <div class="feed-composer__footer">
-        <div class="feed-composer__info" data-composer-target="info" hidden>
-          <span class="feed-composer__info-text"
-                data-composer-target="timeLabel"
-                <% unless hackatime_linked? %> hidden<% end %>>Loading time...</span>
+      <div class="feed-composer__info-wrap" data-composer-target="footer">
+        <div class="feed-composer__info">
+          <turbo-frame id="devlog-preview-time"
+                       data-composer-target="timeFrame"
+                       <%= "hidden" unless hackatime_linked? %>>
+            <span class="feed-composer__info-text">Loading time...</span>
+          </turbo-frame>
           <%= link_to "Link a Hackatime project to post",
                 project_path(selected_project, editing: true),
                 class: "feed-composer__info-text feed-composer__info-text--warn",
                 data: { composer_target: "warn", turbo: false },
                 hidden: hackatime_linked? %>
+        </div>
+      </div>
+
+      <div class="feed-composer__toolbar">
+        <div class="feed-composer__tools">
+          <button type="button"
+                  class="feed-composer__tool-btn"
+                  aria-label="Attach media"
+                  data-action="composer#openFilePicker">
+            <%= inline_svg_tag "icons/attachment.svg", class: "feed-composer__tool-icon" %>
+          </button>
+
+          <div class="feed-composer__emoji-wrap">
+            <button type="button"
+                    class="feed-composer__tool-btn"
+                    aria-label="Add emoji"
+                    data-emoji-picker-target="trigger"
+                    data-action="emoji-picker#toggle">
+              <%= inline_svg_tag "icons/emoji.svg", class: "feed-composer__tool-icon" %>
+            </button>
+            <div class="feed-composer__emoji-popover"
+                 data-emoji-picker-target="popover"
+                 hidden></div>
+          </div>
         </div>
 
         <%= render ActionButtonComponent.new(

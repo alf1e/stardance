@@ -19,12 +19,13 @@
   follower_count = @follower_count || @project.project_follows.size
   viewer_follow = @viewer_follow
   total_hours = @total_hours || (@project.duration_seconds / 3600.0).round
-  latest_ship_post = @latest_ship_post || @posts.find { |p| p.postable_type == "Post::ShipEvent" }
   can_edit_project = @can_edit_project
 %>
 
 <% if @show_project_tour %>
   <%= render "welcome_tour" %>
+<% elsif @show_first_hackatime_tour %>
+  <%= render "first_hackatime_tour" %>
 <% end %>
 
 <div class="app-layout">
@@ -38,7 +39,7 @@
                     multipart: true,
                     class: "project-show project-show--editing",
                     data: {
-                      turbo_frame: "_top",
+                      turbo: false,
                       controller: "project-form",
                       action: "submit->project-form#onSubmit",
                       "project-form-readme-locked-class-value": "project-show__field--locked"
@@ -126,13 +127,16 @@
                                } %>
 
             <div class="project-show__edit-grid">
-              <div class="project-show__field project-show__field--inline">
+              <div class="project-show__field project-show__field--inline project-show__field--hackatime">
                 <span>Hackatime projects</span>
                 <% if !@hackatime_linked %>
-                  <a href="#" class="project-show__hackatime-connect"
-                     onclick="var f=document.createElement('form');f.method='post';f.action='/auth/hackatime';f.innerHTML='<input type=hidden name=authenticity_token value=&quot;'+document.querySelector('meta[name=csrf-token]').content+'&quot;>';document.body.append(f);f.submit();return false;">
+                  <%= button_to "/auth/hackatime",
+                                method: :post,
+                                params: { origin: request.fullpath },
+                                class: "project-show__hackatime-connect",
+                                form: { class: "project-show__hackatime-connect-form" } do %>
                     Connect Hackatime to link projects →
-                  </a>
+                  <% end %>
                 <% elsif @hackatime_dropdown_items.blank? %>
                   <span class="project-show__hackatime-empty">
                     No Hackatime projects yet — start coding with Hackatime installed to see them here.
@@ -202,7 +206,7 @@
               <div class="project-show__sparkle" aria-hidden="true"></div>
 
               <label class="project-show__field project-show__field--inline">
-                <span>Playable URL <span class="project-show__help" title="A live URL where anyone can try your project.">?</span></span>
+                <span>Demo URL <span class="project-show__help" title="A live URL where anyone can try your project.">?</span></span>
                 <%= form.url_field :demo_url,
                                    class: "project-show__control",
                                    placeholder: "https://example.com",
@@ -341,39 +345,104 @@
     <% end %>
 
     <% if is_member %>
-      <% if @hackatime_linked %>
+      <% if @hackatime_linked || @test_time_granted %>
+        <%
+          no_hackatime_project = @project.hackatime_keys.blank? && !@test_time_granted
+          live_seconds = @project.hackatime_keys.sum { |k| @hackatime_times[k].to_i }
+          unposted_seconds = [ live_seconds - @project.duration_seconds, 0 ].max
+          enough_time = !no_hackatime_project && (unposted_seconds >= 15 * 60 || @test_time_granted)
+          devlog_disabled_message = "Edit this project to add a Hackatime project" if no_hackatime_project
+          # Only call it the primary action when devlogging is actually
+          # actionable right now — i.e. you have a Hackatime project AND at
+          # least 15m of unposted time. Otherwise it stays secondary.
+          devlog_primary = @project.next_step_is_devlog? && enough_time
+          devlog_modifier_class = devlog_primary ? "project-show__action--primary" : "project-show__action--secondary"
+        %>
         <nav class="project-show__actions" aria-label="Project actions">
-          <%= render ActionButtonComponent.new(
-                text: "Post a devlog +",
-                variant: :secondary,
-                type: :button,
-                onclick: "document.getElementById('composer-modal-' + #{@project.id.to_json}).showModal()"
-              ) %>
-          <%= render ActionButtonComponent.new(
-                text: "Create new ship",
-                variant: :primary,
-                href: new_project_ships_path(@project),
-                icon: "icons/rocket.png",
-                data: { turbo_frame: "_top" }
-              ) %>
+          <% devlog_variant = devlog_primary ? :primary : :secondary %>
+          <% if devlog_disabled_message %>
+            <%= render ActionButtonComponent.new(
+                  text: "Post a devlog +",
+                  variant: devlog_variant,
+                  type: :button,
+                  disabled: true,
+                  data: {
+                    controller: "disabled-tooltip",
+                    disabled_tooltip_message_value: devlog_disabled_message,
+                    disabled_tooltip_position_value: "top"
+                  }
+                ) %>
+          <% else %>
+            <%= render ActionButtonComponent.new(
+                  text: "Post a devlog +",
+                  variant: devlog_variant,
+                  type: :button,
+                  onclick: "document.getElementById('composer-modal-' + #{@project.id.to_json}).showModal()"
+                ) %>
+          <% end %>
+          <%= button_to "Add 15min (test)",
+                        add_test_time_project_path(@project),
+                        method: :post,
+                        class: "action-btn action-btn--large action-btn--secondary project-show__action--test",
+                        form: { class: "project-show__action-form" } %>
+          <% if @project.has_devlog_since_last_ship? %>
+            <% if unposted_seconds >= 15 * 60 %>
+              <%= render ActionButtonComponent.new(
+                    text: "Create new ship",
+                    variant: :primary,
+                    type: :button,
+                    icon: "icons/rocket.png",
+                    onclick: "document.getElementById('ship-warning-modal-' + #{@project.id.to_json}).showModal()"
+                  ) %>
+            <% else %>
+              <%= render ActionButtonComponent.new(
+                    text: "Create new ship",
+                    variant: :primary,
+                    href: new_project_ships_path(@project),
+                    icon: "icons/rocket.png",
+                    data: { turbo_frame: "_top" }
+                  ) %>
+            <% end %>
+          <% else %>
+            <%= render ActionButtonComponent.new(
+                  text: "Create new ship",
+                  variant: :secondary,
+                  type: :button,
+                  icon: "icons/rocket.png",
+                  disabled: true,
+                  data: {
+                    controller: "disabled-tooltip",
+                    disabled_tooltip_message_value: "Post at least one devlog before shipping!",
+                    disabled_tooltip_position_value: "top"
+                  }
+                ) %>
+          <% end %>
           <%= render ActionButtonComponent.new(
                 text: "Manage teammates",
                 variant: :secondary,
                 type: :button,
                 disabled: true,
-                title: "Manage teammates — coming soon"
+                data: {
+                  controller: "disabled-tooltip",
+                  disabled_tooltip_message_value: "This feature is WIP!",
+                  disabled_tooltip_position_value: "top"
+                }
               ) %>
         </nav>
       <% else %>
         <nav class="project-show__actions" aria-label="Project actions">
-          <%= render ActionButtonComponent.new(
-                text: "Link Hackatime to track your project time",
-                variant: :primary,
-                href: "/auth/hackatime",
-                method: :post,
-                icon: "icons/right-arrow.svg",
-                class: "project-show__hackatime-cta"
-              ) %>
+          <%= button_to "/auth/hackatime",
+                        method: :post,
+                        params: { origin: request.fullpath },
+                        class: "action-btn action-btn--large action-btn--primary project-show__hackatime-cta",
+                        form: { class: "project-show__action-form" } do %>
+            Link Hackatime to track your project time<%= inline_svg_tag "icons/right-arrow.svg", class: "action-btn__icon action-btn__icon--trailing", aria: { hidden: true } %>
+          <% end %>
+          <%= button_to "Add 15min (test)",
+                        add_test_time_project_path(@project),
+                        method: :post,
+                        class: "action-btn action-btn--large action-btn--secondary project-show__action--test",
+                        form: { class: "project-show__action-form" } %>
         </nav>
       <% end %>
     <% end %>
@@ -389,14 +458,16 @@
         </header>
 
         <div class="project-show__onboarding-list">
-          <%= link_to guide_path(:github_repository),
-                      class: "project-show__onboarding-card",
-                      data: { turbo_frame: "_top" } do %>
-            <span class="project-show__onboarding-card-body">
-              <strong class="project-show__onboarding-card-body-title">Create your GitHub repository</strong>
-              <span class="project-show__onboarding-card-body-text">Learn to use a GitHub repository to store your project's code, and link it to your Stardance project.</span>
-            </span>
-            <span class="project-show__onboarding-card-action">See tutorial →</span>
+          <% if @project.repo_url.blank? %>
+            <%= link_to guide_path(:github_repository),
+                        class: "project-show__onboarding-card",
+                        data: { turbo_frame: "_top" } do %>
+              <span class="project-show__onboarding-card-body">
+                <strong class="project-show__onboarding-card-body-title">Create your GitHub repository</strong>
+                <span class="project-show__onboarding-card-body-text">Learn to use a GitHub repository to store your project's code, and link it to your Stardance project.</span>
+              </span>
+              <span class="project-show__onboarding-card-action">See tutorial →</span>
+            <% end %>
           <% end %>
 
           <% if @project_onboarding_mission.present? %>
@@ -439,12 +510,15 @@
 
     <% if @posts.any? %>
       <section class="project-show__feed" aria-label="Project feed">
+        <% ship_count = @posts.count { |p| p.postable_type == "Post::ShipEvent" } %>
+        <% ship_index = 0 %>
         <% @posts.each do |post| %>
           <% if post.postable_type == "Post::ShipEvent" %>
+            <% ship_index += 1 %>
             <%= render "projects/ship_card",
                        post: post,
                        project: @project,
-                       latest: post == latest_ship_post %>
+                       ship_number: ship_count - ship_index + 1 %>
           <% else %>
             <%= render PostComponent.new(post: post, current_user: current_user, theme: :profile_dark) %>
           <% end %>
@@ -507,6 +581,37 @@
             projects: @composer_projects,
             selected_project: @project
           ) %>
+    </dialog>
+  <% end %>
+
+  <% if is_member && @hackatime_linked && @project.has_devlog_since_last_ship? %>
+    <%
+      ship_warn_seconds = [ @project.hackatime_keys.sum { |k| @hackatime_times[k].to_i } - @project.duration_seconds, 0 ].max
+      ship_warn_hours = ship_warn_seconds / 3600
+      ship_warn_minutes = (ship_warn_seconds % 3600) / 60
+      ship_warn_time = ship_warn_hours > 0 ? "#{ship_warn_hours}h #{ship_warn_minutes}m" : "#{ship_warn_minutes}m"
+    %>
+    <dialog id="ship-warning-modal-<%= @project.id %>"
+            class="ship-warning-modal"
+            data-controller="modal"
+            aria-labelledby="ship-warning-modal-<%= @project.id %>-title">
+      <div class="ship-warning-modal__body">
+        <h3 id="ship-warning-modal-<%= @project.id %>-title" class="ship-warning-modal__title">Warning</h3>
+        <p class="ship-warning-modal__text">
+          You have <strong><%= ship_warn_time %></strong> logged that you haven't posted a devlog for. If you ship without posting a devlog, this time will be lost!
+        </p>
+        <div class="ship-warning-modal__actions">
+          <button type="button"
+                  class="ship-warning-modal__btn ship-warning-modal__btn--secondary"
+                  onclick="document.getElementById('ship-warning-modal-<%= @project.id %>').close(); document.getElementById('composer-modal-<%= @project.id %>').showModal()">
+            Post a devlog
+          </button>
+          <%= link_to "Ship anyway →",
+                      new_project_ships_path(@project),
+                      class: "ship-warning-modal__btn ship-warning-modal__btn--primary",
+                      data: { turbo_frame: "_top" } %>
+        </div>
+      </div>
     </dialog>
   <% end %>
 

@@ -15,6 +15,7 @@ export default class extends Controller {
     step: { type: Number, default: 0 },
     steps: Array,
     minWidth: { type: Number, default: 900 },
+    lockScroll: { type: Boolean, default: true },
   };
 
   connect() {
@@ -25,13 +26,17 @@ export default class extends Controller {
 
     this._onReflow = this._onReflow.bind(this);
     this._onKey = this._onKey.bind(this);
+    this._onDocumentClick = this._onDocumentClick.bind(this);
 
     window.addEventListener("resize", this._onReflow);
     window.addEventListener("scroll", this._onReflow, { passive: true });
     document.addEventListener("keydown", this._onKey);
+    document.addEventListener("click", this._onDocumentClick, true);
 
-    this._previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    if (this.lockScrollValue) {
+      this._previousOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+    }
 
     this._render();
     requestAnimationFrame(() => {
@@ -44,6 +49,8 @@ export default class extends Controller {
     window.removeEventListener("resize", this._onReflow);
     window.removeEventListener("scroll", this._onReflow);
     document.removeEventListener("keydown", this._onKey);
+    document.removeEventListener("click", this._onDocumentClick, true);
+    this._clearWaitForTarget();
     if (this._previousOverflow !== undefined) {
       document.body.style.overflow = this._previousOverflow;
     }
@@ -57,6 +64,8 @@ export default class extends Controller {
 
   next() {
     this._clearAutoAdvance();
+    this._advancing = false;
+    this._clearWaitForTarget();
     if (this.stepValue >= this.stepsValue.length - 1) {
       this.finish();
     } else {
@@ -71,6 +80,7 @@ export default class extends Controller {
 
   finish() {
     this._clearAutoAdvance();
+    this._clearWaitForTarget();
     this.element.remove();
   }
 
@@ -86,6 +96,11 @@ export default class extends Controller {
   }
 
   _onKey(event) {
+    const step = this.stepsValue[this.stepValue];
+    // clickToAdvance steps lock the user to a specific action — don't let
+    // them skip past it with Escape or arrow keys.
+    if (step?.clickToAdvance) return;
+
     if (event.key === "Escape") {
       this.finish();
     } else if (event.key === "ArrowRight") {
@@ -93,6 +108,32 @@ export default class extends Controller {
     } else if (event.key === "ArrowLeft") {
       this.back();
     }
+  }
+
+  _onDocumentClick(event) {
+    const step = this.stepsValue[this.stepValue];
+    if (!step?.clickToAdvance || this._advancing) return;
+
+    const target = this._findTarget(step.selector);
+    if (!target) return;
+    if (target !== event.target && !target.contains(event.target)) return;
+
+    this._advancing = true;
+    // Wait for the turbo frame swap that the click usually triggers before
+    // advancing — the next step's target lives in the freshly-loaded frame
+    // and `waitForTarget` will pick it up once it appears. Use a single
+    // `advance` callback wired to both signals so they can't double-fire.
+    let advanced = false;
+    let timeoutId;
+    const advance = () => {
+      if (advanced) return;
+      advanced = true;
+      clearTimeout(timeoutId);
+      document.removeEventListener("turbo:frame-load", advance);
+      this.next();
+    };
+    document.addEventListener("turbo:frame-load", advance, { once: true });
+    timeoutId = setTimeout(advance, 2500);
   }
 
   _render() {
@@ -106,6 +147,10 @@ export default class extends Controller {
     this.element.classList.toggle(
       "welcome-tour--ceremonial",
       !!step.ceremonial,
+    );
+    this.element.classList.toggle(
+      "welcome-tour--click-to-advance",
+      !!step.clickToAdvance,
     );
 
     if (this.hasSubtitleTarget) {
@@ -125,6 +170,10 @@ export default class extends Controller {
 
     const target = this._findTarget(step.selector);
     if (!target) {
+      if (step.waitForTarget) {
+        this._scheduleWaitForTarget();
+        return;
+      }
       if (this.stepValue < this.stepsValue.length - 1) {
         this.stepValue += 1;
       } else {
@@ -132,6 +181,7 @@ export default class extends Controller {
       }
       return;
     }
+    this._clearWaitForTarget();
 
     const pad = step.padding ?? 12;
     const rect = target.getBoundingClientRect();
@@ -171,8 +221,8 @@ export default class extends Controller {
     this.nextTarget.textContent = isLast
       ? "Finish! →"
       : `Next (${this.stepValue + 1}/${this.stepsValue.length}) →`;
-    this.nextTarget.hidden = false;
-    this.backTarget.hidden = this.stepValue === 0;
+    this.nextTarget.hidden = !!step.clickToAdvance;
+    this.backTarget.hidden = this.stepValue === 0 || !!step.clickToAdvance;
 
     this.element.classList.toggle(
       "welcome-tour--arrow-bottom",
@@ -355,5 +405,36 @@ export default class extends Controller {
 
   _abort() {
     this.element.remove();
+  }
+
+  _scheduleWaitForTarget() {
+    if (this._waitForTargetTimer) return;
+    this._waitForTargetStart = Date.now();
+    this._waitForTargetTimer = setInterval(() => {
+      const step = this.stepsValue[this.stepValue];
+      if (!step) {
+        this._clearWaitForTarget();
+        return;
+      }
+      const target = this._findTarget(step.selector);
+      if (target) {
+        this._clearWaitForTarget();
+        target.scrollIntoView({ block: "center", behavior: "smooth" });
+        this._render();
+        return;
+      }
+      if (Date.now() - this._waitForTargetStart > 8000) {
+        this._clearWaitForTarget();
+        if (this.stepValue < this.stepsValue.length - 1) this.next();
+        else this.finish();
+      }
+    }, 120);
+  }
+
+  _clearWaitForTarget() {
+    if (this._waitForTargetTimer) {
+      clearInterval(this._waitForTargetTimer);
+      this._waitForTargetTimer = null;
+    }
   }
 }
