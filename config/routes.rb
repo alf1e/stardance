@@ -150,10 +150,6 @@
 #                       admin_vote_quality_dashboard GET    /admin/vote_quality_dashboard(.:format)                                                           admin/vote_quality_dashboard#index
 #                  admin_vote_quality_dashboard_user GET    /admin/vote_quality_dashboard/users/:user_id(.:format)                                            admin/vote_quality_dashboard#show
 #                            admin_ship_event_scores GET    /admin/ship_event_scores(.:format)                                                                admin/ship_event_scores#index
-#                         admin_super_mega_dashboard GET    /admin/super_mega_dashboard(.:format)                                                             admin/super_mega_dashboard#index
-#             admin_super_mega_dashboard_clear_cache DELETE /admin/super_mega_dashboard/clear_cache(.:format)                                                 admin/super_mega_dashboard#clear_cache
-#            admin_super_mega_dashboard_load_section GET    /admin/super_mega_dashboard/load_section(.:format)                                                admin/super_mega_dashboard#load_section
-#       admin_super_mega_dashboard_refresh_nps_vibes POST   /admin/super_mega_dashboard/refresh_nps_vibes(.:format)                                           admin/super_mega_dashboard#refresh_nps_vibes
 # send_letter_mail_admin_fulfillment_dashboard_index POST   /admin/fulfillment_dashboard/send_letter_mail(.:format)                                           admin/fulfillment_dashboard#send_letter_mail
 #                  admin_fulfillment_dashboard_index GET    /admin/fulfillment_dashboard(.:format)                                                            admin/fulfillment_dashboard#index
 #                   approve_admin_fulfillment_payout POST   /admin/fulfillment_payouts/:id/approve(.:format)                                                  admin/fulfillment_payouts#approve
@@ -683,10 +679,6 @@ Rails.application.routes.draw do
     get "vote_quality_dashboard", to: "vote_quality_dashboard#index"
     get "vote_quality_dashboard/users/:user_id", to: "vote_quality_dashboard#show", as: :vote_quality_dashboard_user
     get "ship_event_scores", to: "ship_event_scores#index"
-    get "super_mega_dashboard", to: "super_mega_dashboard#index"
-    delete "super_mega_dashboard/clear_cache", to: "super_mega_dashboard#clear_cache", as: :super_mega_dashboard_clear_cache
-    get "super_mega_dashboard/load_section", to: "super_mega_dashboard#load_section"
-    post "super_mega_dashboard/refresh_nps_vibes", to: "super_mega_dashboard#refresh_nps_vibes", as: :super_mega_dashboard_refresh_nps_vibes
     resources :fulfillment_dashboard, only: [ :index ] do
       collection do
         post :send_letter_mail

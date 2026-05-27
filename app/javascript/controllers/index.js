@@ -67,9 +67,6 @@ application.register("hero-warp", HeroWarpController);
 import JsonHighlightController from "./json_highlight_controller";
 application.register("json-highlight", JsonHighlightController);
 
-import LazyLoadController from "./lazy_load_controller";
-application.register("lazy-load", LazyLoadController);
-
 import LockedTabController from "./locked_tab_controller";
 application.register("locked-tab", LockedTabController);
 

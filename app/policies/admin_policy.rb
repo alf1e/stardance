@@ -87,10 +87,6 @@ class AdminPolicy < ApplicationPolicy
     user.admin? || user.fraud_dept?
   end
 
-  def access_super_mega_dashboard?
-    user.admin?
-  end
-
   def access_voting_dashboard?
     user.admin? || user.fraud_dept?
   end
