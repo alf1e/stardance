@@ -60,14 +60,21 @@ module Certification
     # Health target for the pending queue. Above this we read as "behind".
     QUEUE_TARGET = 25
 
+    # Target turnaround: a ship should get a verdict within this many days.
+    SLA_DAYS = 3
+
     # Snapshot of queue health for the reviewer dashboard. Counts are global
     # (every reviewer shares one queue), so this is intentionally not scoped
     # to the current user the way the listing is.
     def self.dashboard_stats(now: Time.current)
       today = now.beginning_of_day
+      week = now.beginning_of_week
       approved_count = where(status: :approved).count
       returned_count = where(status: :returned).count
       decided_count = approved_count + returned_count
+
+      decided = where.not(status: :pending)
+      on_time_count = decided.where("decided_at <= created_at + (interval '1 day' * ?)", SLA_DAYS).count
 
       {
         pending: where(status: :pending).count,
@@ -75,10 +82,15 @@ module Certification
         returned: returned_count,
         decided: decided_count,
         approval_rate: decided_count.zero? ? nil : (approved_count * 100.0 / decided_count).round,
-        decisions_today: where.not(status: :pending).where(decided_at: today..).count,
+        decisions_today: decided.where(decided_at: today..).count,
         new_today: where(created_at: today..).count,
+        decisions_this_week: decided.where(decided_at: week..).count,
+        new_this_week: where(created_at: week..).count,
         oldest_pending: where(status: :pending).order(created_at: :asc).first,
-        queue_target: QUEUE_TARGET
+        queue_target: QUEUE_TARGET,
+        sla_days: SLA_DAYS,
+        on_time_rate: decided_count.zero? ? nil : (on_time_count * 100.0 / decided_count).round,
+        overdue_pending: where(status: :pending).where("created_at < ?", now - SLA_DAYS.days).count
       }
     end
 
