@@ -843,7 +843,7 @@ $slider-star: url("onboarding/star-radio-active.svg");
 .onboarding-interests-result {
   &__featured {
     display: grid;
-    gap: 1rem;
+    gap: 0.75rem;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     margin: 2rem 0;
 
@@ -851,14 +851,69 @@ $slider-star: url("onboarding/star-radio-active.svg");
       grid-auto-flow: column;
       grid-template-columns: none;
       overflow-x: auto;
+      scroll-snap-type: x mandatory;
     }
   }
 
   &__featured-card {
-    aspect-ratio: 358 / 264;
-    border: 2px solid white;
-    border-radius: 0.3rem;
-    min-width: 200px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.5rem;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    min-width: 180px;
+    overflow: hidden;
+    scroll-snap-align: start;
+    text-decoration: none;
+    transition: border-color 0.2s, transform 0.2s;
+
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: translateY(-2px);
+    }
+  }
+
+  &__featured-img {
+    aspect-ratio: 16 / 10;
+    display: block;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  &__featured-placeholder {
+    align-items: center;
+    aspect-ratio: 16 / 10;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.12));
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+
+    span {
+      font-size: 0.85rem;
+      font-weight: 600;
+      opacity: 0.6;
+      text-align: center;
+    }
+  }
+
+  &__featured-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.5rem 0.6rem;
+  }
+
+  &__featured-title {
+    font-size: 0.8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__featured-meta {
+    font-size: 0.7rem;
+    opacity: 0.6;
   }
 
   &__prize-label {

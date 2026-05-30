@@ -7,14 +7,41 @@
       <h1 class="onboarding-screen__title">That's alright!</h1>
       <p class="onboarding-screen__subhead">We'll figure it out together :D</p>
     <% else %>
-      <h1 class="onboarding-screen__title"><%= onboarding_count_up(2734) %> other teens like that too!</h1>
-      <p class="onboarding-screen__subhead">and <%= onboarding_count_up(820) %> of them are also beginners!</p>
-
-      <div class="onboarding-interests-result__featured" aria-label="Featured projects">
-        <% 5.times do |i| %>
-          <div class="onboarding-interests-result__featured-card"></div>
+      <h1 class="onboarding-screen__title">
+        <% if @peer_count >= 10 %>
+          <%= onboarding_count_up(@peer_count) %> other teens like that too!
+        <% else %>
+          A bunch of other teens like that too!
         <% end %>
-      </div>
+      </h1>
+      <p class="onboarding-screen__subhead">
+        <% if @beginner_peer_count >= 10 %>
+          and <%= onboarding_count_up(@beginner_peer_count) %> of them are also beginners!
+        <% else %>
+          and plenty of them are also beginners!
+        <% end %>
+      </p>
+
+      <% if @featured_projects.present? %>
+        <div class="onboarding-interests-result__featured" aria-label="Featured projects">
+          <% @featured_projects.each do |project| %>
+            <a href="<%= project.url %>" target="_blank" rel="noopener noreferrer" class="onboarding-interests-result__featured-card">
+              <% if project.thumbnail_url %>
+                <% thumb_src = project.thumbnail_url.start_with?("http") ? project.thumbnail_url : image_path(project.thumbnail_url) %>
+                <img src="<%= thumb_src %>" alt="<%= project.title %>" class="onboarding-interests-result__featured-img" loading="lazy">
+              <% else %>
+                <div class="onboarding-interests-result__featured-placeholder">
+                  <span><%= project.title %></span>
+                </div>
+              <% end %>
+              <div class="onboarding-interests-result__featured-info">
+                <strong class="onboarding-interests-result__featured-title"><%= project.title %></strong>
+                <span class="onboarding-interests-result__featured-meta"><%= project.age %>yo from <%= project.location %></span>
+              </div>
+            </a>
+          <% end %>
+        </div>
+      <% end %>
 
       <p class="onboarding-interests-result__prize-label">and they're getting prizes like</p>
       <div class="onboarding-interests-result__prizes" aria-hidden="true">
