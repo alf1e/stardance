@@ -472,8 +472,6 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Test error page for Sentry
-  get "test_error" => "debug#error" unless Rails.env.production?
 
   # Letter opener web for development email preview
   if Rails.env.development?
@@ -497,7 +495,6 @@ Rails.application.routes.draw do
   delete "logout", to: "sessions#destroy"
   get "dev_login", to: "sessions#dev_login", as: :dev_login_auto if Rails.env.development? || Rails.env.test?
   get "dev_login/:id", to: "sessions#dev_login", as: :dev_login if Rails.env.development? || Rails.env.test?
-  get "dev/test_counter", to: "debug#test_counter" if Rails.env.development?
 
   # OAuth callback for HCA
   get "/oauth/callback", to: "sessions#create"
