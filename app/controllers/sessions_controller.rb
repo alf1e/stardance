@@ -41,11 +41,8 @@ class SessionsController < ApplicationController
       home_path
     end
 
-    if result.is_new_user
-      track_event "signed_up", { user_id: result.user.id }
-    else
-      track_event "signed_in", { user_id: result.user.id }
-    end
+    track_event "signed_up", { user_id: result.user.id } if result.is_new_user
+    track_event "hca_linked", { user_id: result.user.id } if result.is_new_user || result.guest_collision
     redirect_to destination, notice: "Signed in with Hack Club"
   end
 
