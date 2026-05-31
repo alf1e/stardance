@@ -9,7 +9,7 @@ class Projects::DevlogsController < ApplicationController
   def show
     authorize @devlog
     @body_class = "app-layout-page"
-    @post = @project.posts.find_by!(postable: @devlog)
+    @post = @project.posts.visible_to(current_user).find_by!(postable: @devlog)
     @comments = @devlog.comments.includes(:user).order(created_at: :asc)
   end
 
