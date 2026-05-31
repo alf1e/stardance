@@ -18,7 +18,7 @@ Achievement = Data.define(:slug, :name, :description, :icon, :earned_check, :pro
       icon: "fire",
       earned_check: ->(user) { user.projects.fire.exists? },
       visibility: :secret
-    ),
+    )
   ].freeze
 
   SECRET = (Secrets.available? ? SecretAchievements::DEFINITIONS.map { |d| new(**d) } : []).freeze
