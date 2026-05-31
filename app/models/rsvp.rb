@@ -25,6 +25,7 @@
 #  index_rsvps_on_confirmation_token  (confirmation_token) UNIQUE
 #
 class Rsvp < ApplicationRecord
+  AMBASSADOR_REFERRAL_PREFIX = "a-".freeze
   USER_REF_OPTIONS = [
     "Teacher",
     "NASA",
