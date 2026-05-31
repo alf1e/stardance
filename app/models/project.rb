@@ -240,8 +240,7 @@ class Project < ApplicationRecord
     event :submit_for_review do
       transitions from: [ :draft, :submitted, :under_review, :needs_changes, :approved, :rejected ], to: :submitted, guard: :shippable?
       after do
-        self.shipped_at = Time.current
-        ship_reviews.find_or_create_by!(status: :pending)
+        self.shipped_at = Time.current # I moved this logic to the ships controller as there's differences in how we handle reships - @AVD
       end
     end
 
@@ -330,8 +329,8 @@ class Project < ApplicationRecord
       },
       {
         key: :banner,
-        label: "Upload a banner image for your project",
-        tooltip: "A banner image (JPEG, PNG, or WebP, max 10MB) that represents your project on the explore page.",
+        label: "Upload a screenshot of your project",
+        tooltip: "A screenshot (JPEG, PNG, or WebP, max 10MB) that represents your project on the explore page.",
         passed: banner.attached?
       },
       {

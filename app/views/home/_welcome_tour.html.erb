@@ -7,7 +7,7 @@
       intro: true,
       ceremonial: true,
       text: intro_text,
-      subtitle: "to Stardance Challenge",
+      subtitle: "to the Stardance Challenge",
       autoAdvance: 3200
     },
     {
@@ -26,9 +26,10 @@
     },
     {
       selector: ".empty-project-banner, .feed-composer",
-      text: "When you're ready, create your first project! After you post your first devlog, you can get free stickers!",
+      text: "Create your first project and start time tracking to get free stickers!",
       padding: 12,
-      radius: 12
+      radius: 12,
+      scrollToCenter: true
     }
   ]
 %>
@@ -36,6 +37,7 @@
 <div class="welcome-tour"
      data-controller="welcome-tour"
      data-welcome-tour-steps-value="<%= steps.to_json %>"
+     data-welcome-tour-lock-scroll-value="false"
      role="dialog"
      aria-modal="true"
      aria-label="Welcome tour">

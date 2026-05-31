@@ -42,21 +42,14 @@ body.signed-in {
   }
 }
 
-// Shop page keeps the same backdrop even when logged out.
-body.shop-page:not(.signed-in) {
+// Shop and guides pages keep the dark space backdrop even when logged out.
+body.shop-page:not(.signed-in),
+body.guides-page:not(.signed-in) {
   background-color: var(--color-space-bg);
   color: var(--color-space-text);
 }
 
 body.shop-page.signed-in {
-  margin-right: 0;
-}
-
-// Ship wizard — fullscreen dark cosmic layout, no sidebar margins.
-body.ship-page {
-  background-color: var(--color-space-bg);
-  color: var(--color-space-text);
-  margin-left: 0;
   margin-right: 0;
 }
 

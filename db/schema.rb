@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_29_133839) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_30_182421) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -514,6 +514,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_133839) do
     t.index ["sha"], name: "index_post_git_commits_on_sha", unique: true
   end
 
+  create_table "post_reposts", force: :cascade do |t|
+    t.string "body"
+    t.datetime "created_at", null: false
+    t.bigint "original_post_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["original_post_id", "user_id"], name: "index_post_reposts_on_original_post_id_and_user_id", unique: true
+    t.index ["original_post_id"], name: "index_post_reposts_on_original_post_id"
+    t.index ["user_id"], name: "index_post_reposts_on_user_id"
+  end
+
   create_table "post_ship_events", force: :cascade do |t|
     t.float "base_hours"
     t.string "body"
@@ -552,7 +563,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_133839) do
     t.datetime "created_at", null: false
     t.bigint "postable_id"
     t.string "postable_type"
-    t.bigint "project_id", null: false
+    t.bigint "project_id"
+    t.integer "reposts_count", default: 0, null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id"
     t.index ["postable_type", "postable_id"], name: "index_posts_on_postable_type_and_postable_id", unique: true
@@ -1073,6 +1085,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_133839) do
     t.string "experience_level"
     t.string "first_name"
     t.string "granted_roles", default: [], null: false, array: true
+    t.string "guest_email"
     t.boolean "has_gotten_free_stickers", default: false
     t.boolean "has_pending_achievements", default: false, null: false
     t.string "hcb_email"
@@ -1100,6 +1113,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_133839) do
     t.index "lower((display_name)::text)", name: "index_users_on_lower_display_name_unique", unique: true, where: "((display_name IS NOT NULL) AND ((display_name)::text <> ''::text))"
     t.index "lower((email)::text)", name: "index_users_on_lower_email_unique", unique: true, where: "((email IS NOT NULL) AND ((email)::text <> ''::text))"
     t.index ["email"], name: "index_users_on_email"
+    t.index ["guest_email"], name: "index_users_on_guest_email"
     t.index ["onboarded_at"], name: "index_users_on_onboarded_at"
     t.index ["session_token"], name: "index_users_on_session_token", unique: true
     t.index ["slack_id"], name: "index_users_on_slack_id", unique: true
@@ -1166,8 +1180,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_133839) do
   add_foreign_key "certification_devlog_reviews", "post_devlogs"
   add_foreign_key "certification_ship_reviews", "projects"
   add_foreign_key "certification_ship_reviews", "users", column: "reviewer_id"
+  add_foreign_key "certification_ysws_reviews", "certification_ship_reviews", column: "ship_cert_id"
   add_foreign_key "certification_ysws_reviews", "post_ship_events"
-  add_foreign_key "certification_ysws_reviews", "post_ship_events", column: "ship_cert_id"
   add_foreign_key "certification_ysws_reviews", "projects"
   add_foreign_key "certification_ysws_reviews", "users"
   add_foreign_key "certification_ysws_reviews", "users", column: "reviewer_id"
@@ -1201,6 +1215,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_133839) do
   add_foreign_key "mission_submissions", "post_ship_events", column: "ship_event_id"
   add_foreign_key "mission_submissions", "shop_orders"
   add_foreign_key "mission_submissions", "users", column: "reviewed_by_id"
+  add_foreign_key "post_reposts", "posts", column: "original_post_id"
+  add_foreign_key "post_reposts", "users"
   add_foreign_key "posts", "projects"
   add_foreign_key "posts", "users"
   add_foreign_key "project_follows", "projects"

@@ -16,6 +16,7 @@
 #  experience_level             :string
 #  first_name                   :string
 #  granted_roles                :string           default([]), not null, is an Array
+#  guest_email                  :string
 #  has_gotten_free_stickers     :boolean          default(FALSE)
 #  has_pending_achievements     :boolean          default(FALSE), not null
 #  hcb_email                    :string
@@ -45,6 +46,7 @@
 # Indexes
 #
 #  index_users_on_email                      (email)
+#  index_users_on_guest_email                (guest_email)
 #  index_users_on_lower_display_name_unique  (lower((display_name)::text)) UNIQUE WHERE ((display_name IS NOT NULL) AND ((display_name)::text <> ''::text))
 #  index_users_on_lower_email_unique         (lower((email)::text)) UNIQUE WHERE ((email IS NOT NULL) AND ((email)::text <> ''::text))
 #  index_users_on_onboarded_at               (onboarded_at)
