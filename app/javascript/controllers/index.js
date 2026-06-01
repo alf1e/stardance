@@ -199,9 +199,6 @@ application.register("searchable-select", SearchableSelectController);
 import ShopController from "./shop_controller";
 application.register("shop", ShopController);
 
-import ShopGoalsController from "./shop_goals_controller";
-application.register("shop-goals", ShopGoalsController);
-
 import ShopWishlistController from "./shop_wishlist_controller";
 application.register("shop-wishlist", ShopWishlistController);
 
