@@ -11,29 +11,29 @@
     <section class="reviewer-stats__overview">
       <div class="reviewer-stats__stats-card">
         <h2 class="reviewer-stats__stats-title">Your Stats</h2>
-        
+
         <div class="reviewer-stats__stats-list">
           <div class="reviewer-stats__stats-row">
             <span class="reviewer-stats__stats-label">Total:</span>
             <span class="reviewer-stats__stats-value"><%= @total_count %></span>
           </div>
-          
+
           <div class="reviewer-stats__stats-row">
             <span class="reviewer-stats__stats-label">Approved:</span>
             <span class="reviewer-stats__stats-value reviewer-stats__stats-value--approved">
               <%= @approved_count %>
             </span>
           </div>
-          
+
           <div class="reviewer-stats__stats-row">
             <span class="reviewer-stats__stats-label">Rejected:</span>
             <span class="reviewer-stats__stats-value reviewer-stats__stats-value--rejected">
               <%= @returned_count %>
             </span>
           </div>
-          
+
           <hr class="reviewer-stats__divider">
-          
+
           <div class="reviewer-stats__stats-row">
             <span class="reviewer-stats__stats-label">Rate:</span>
             <span class="reviewer-stats__stats-value"><%= @approval_rate %>%</span>
@@ -45,7 +45,7 @@
         <h2 class="reviewer-stats__payout-title">
           <span>✦</span> Stardust
         </h2>
-        
+
         <div class="reviewer-stats__balance-container">
           <div class="reviewer-stats__balance-big"><%= @unclaimed %></div>
           <div class="reviewer-stats__balance-text">balance</div>
@@ -71,17 +71,17 @@
                   <h3 id="payout-modal-title" class="reviewer-stats__modal-title">Request Payout</h3>
                   <button type="button" class="reviewer-stats__modal-close" aria-label="Close" data-action="click->modal#close">×</button>
                 </header>
-                
+
                 <p class="reviewer-stats__modal-desc">
                   You have <strong><%= @unclaimed %> ✦</strong> stardust available. How much stardust would you like to request?
                 </p>
-                
+
                 <div class="reviewer-stats__modal-field">
                   <%= label_tag :amount, "Amount to Request" %>
-                  <%= number_field_tag :amount, @unclaimed, min: 10, max: @unclaimed, required: true, class: "reviewer-stats__modal-input" %>
+                  <%= number_field_tag :amount, @unclaimed, min: 10, max: @unclaimed, required: true, autocomplete: "off", class: "reviewer-stats__modal-input" %>
                   <span class="reviewer-stats__modal-hint">Minimum 10 ✦, Maximum <%= @unclaimed %> ✦</span>
                 </div>
-                
+
                 <div class="reviewer-stats__modal-actions">
                   <button type="button" class="action-btn action-btn--large action-btn--secondary" data-action="click->modal#close">
                     Cancel

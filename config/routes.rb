@@ -690,6 +690,12 @@ Rails.application.routes.draw do
     end
 
     namespace :certification do
+      # Reviewer stats & payout requests
+      scope "/ship" do
+        get  "mystats", to: "mystats#show", as: "mystats"
+        post "mystats/payout_request", to: "mystats#create_payout_request", as: "mystats_payout_request"
+      end
+
       resources :ships, path: "ship", only: [ :index, :show, :update ] do
         collection do
           get :next
@@ -704,10 +710,6 @@ Rails.application.routes.draw do
       get "review", to: "ysws#index", as: "ysws_reviews"
       get "review/:id", to: "ysws#show", as: "ysws_review"
       post "review/:id/report_fraud", to: "ysws#report_fraud", as: "ysws_report_fraud"
-
-      # Reviewer stats & payout requests
-      get  "mystats", to: "mystats#show", as: "mystats"
-      post "mystats/payout_request", to: "mystats#create_payout_request", as: "mystats_payout_request"
 
       # Admin payout management
       resources :payouts, only: [ :index, :show ] do
