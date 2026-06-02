@@ -19,7 +19,7 @@ class SessionsController < ApplicationController
     end
 
     reset_session if result.guest_collision
-    session[:user_id] = result.user.id
+    sign_in_user(result.user)
 
     return_to = safe_return_to(session.delete(:return_to))
 
@@ -68,7 +68,7 @@ class SessionsController < ApplicationController
       return redirect_to(root_path, alert: "No users found for dev login. Create a user first.")
     end
 
-    session[:user_id] = user.id
+    sign_in_user(user)
     if Rails.env.test?
       head :ok
     else
