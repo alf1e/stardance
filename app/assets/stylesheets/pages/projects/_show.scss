@@ -49,8 +49,8 @@ turbo-frame#project_hero {
 // Red "still to complete" highlight for the banner — drawn inside the rounded
 // corners so it isn't clipped by `overflow: hidden`.
 .project-show__banner--incomplete {
-  outline: 2px solid var(--color-brand-salmon);
-  outline-offset: -2px;
+  outline: 4px solid var(--color-brand-salmon);
+  outline-offset: -4px;
 }
 
 .project-show__banner-image {
