@@ -132,14 +132,14 @@ module Certification
 
     before_save :stamp_claimed_at, if: -> { will_save_change_to_reviewer_id? && reviewer_id.present? && claimed_at.nil? }
     before_save :stamp_decided_at, if: -> { will_save_change_to_status? && status_change&.last != "pending" && decided_at.nil? }
+    before_save :assign_stardust_earned, if: -> { will_save_change_to_status? && status_change&.last != "pending" && reviewer_id.present? }
     after_save :apply_verdict_to_project!, if: :saved_change_to_status?
-    after_save :record_earning!, if: -> { saved_change_to_status? && !pending? && reviewer.present? }
     after_save_commit :notify_owner!, if: -> { saved_change_to_status? && !pending? }
 
     private
 
-    def record_earning!
-      update_columns(stardust_earned: REVIEW_BOUNTY)
+    def assign_stardust_earned
+      self.stardust_earned = REVIEW_BOUNTY
     end
 
     def stamp_claimed_at

@@ -11,19 +11,18 @@ class Admin::Certification::MystatsController < Admin::Certification::Applicatio
       .where.not(status: :pending)
       .includes(:project)
       .order(decided_at: :desc)
+      .to_a
 
     @payouts = ReviewerPayoutRequest
       .where(user_id: current_user.id, aasm_state: "paid")
       .order(paid_at: :desc)
 
-    @total_earned = ReviewerPayoutRequest.total_earned_for(current_user)
-    @total_paid = ReviewerPayoutRequest.paid_for(current_user)
     @unclaimed = ReviewerPayoutRequest.unclaimed_for(current_user)
     @pending_request = ReviewerPayoutRequest.pending_for(current_user)
 
-    @total_count = @reviews.count
-    @approved_count = @reviews.where(status: :approved).count
-    @returned_count = @reviews.where(status: :returned).count
+    @total_count = @reviews.size
+    @approved_count = @reviews.count(&:approved?)
+    @returned_count = @reviews.count(&:returned?)
     @approval_rate = @total_count.zero? ? 0 : (@approved_count * 100.0 / @total_count).round
 
     # adding reviews/payouts in one log
@@ -69,6 +68,8 @@ class Admin::Certification::MystatsController < Admin::Certification::Applicatio
     else
       redirect_to admin_certification_mystats_path, alert: @request.errors.full_messages.to_sentence
     end
+  rescue ActiveRecord::RecordNotUnique
+    redirect_to admin_certification_mystats_path, alert: "You already have a pending payout request"
   end
 
   private
