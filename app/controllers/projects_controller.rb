@@ -99,19 +99,21 @@ class ProjectsController < ApplicationController
     @show_project_onboarding = @is_member && @posts.empty?
     @project_onboarding_mission = @project.current_mission
 
-    if @is_member && @project.current_mission.nil? && !@project.shipped?
+    @available_missions = if @is_member && @project.current_mission.nil? && !@project.shipped?
       taken_mission_ids = current_user.projects
                                       .where(deleted_at: nil)
                                       .joins(:mission_attachments)
                                       .where(project_mission_attachments: { detached_at: nil, deleted_at: nil })
                                       .pluck("project_mission_attachments.mission_id")
                                       .uniq
-      @available_missions = Mission.available
-                                   .where.not(id: taken_mission_ids)
-                                   .with_attached_icon
-                                   .order(featured_at: :desc)
-                                   .limit(12)
-                                   .to_a
+      Mission.available
+             .where.not(id: taken_mission_ids)
+             .with_attached_icon
+             .order(featured_at: :desc)
+             .limit(12)
+             .to_a
+    else
+      []
     end
 
     @show_project_tour = params[:welcome] == "1" && current_user.present? && @is_member &&
@@ -457,15 +459,6 @@ class ProjectsController < ApplicationController
     validate_url_not_dead(:readme_url, "Readme URL") if @project.readme_url.present? && @project.errors.empty?
   end
 
-  # these links block automated requests, but we're ok with just assuming they're good
-  ALLOWLISTED_DOMAINS = %w[
-    npmjs.com
-    crates.io
-    curseforge.com
-    makerworld.com
-    streamlit.app
-  ].freeze
-
   def validate_url_not_dead(attribute, name)
     require "uri"
 
@@ -473,20 +466,8 @@ class ProjectsController < ApplicationController
 
     uri = URI.parse(@project.send(attribute))
 
-    if ALLOWLISTED_DOMAINS.any? { |domain| uri.host&.end_with?(domain) }
-      return
-    end
-
-    # Pinned probe: resolves+verifies the host and connects to that exact IP, so
-    # the address we vetted is the one we hit even across redirects. This is the
-    # SSRF-safe path the model's url_reachable? already uses — keep both on it.
-    response = SafeUrl.safe_get(
-      uri.to_s,
-      headers: { "User-Agent" => "Stardance project validator (https://stardance.hackclub.com/)" },
-      open_timeout: 5,
-      read_timeout: 5
-    )
-    status = response.code.to_i
+    status = @project.url_probe_status(@project.send(attribute), cache: false)
+    return if status.nil?
 
     unless (200..299).cover?(status)
       @project.errors.add(attribute, "Your #{name} needs to return a 200 status. I got #{status}, is your code/website set to public!?!?")
