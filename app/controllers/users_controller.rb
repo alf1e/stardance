@@ -91,7 +91,7 @@ class UsersController < ApplicationController
                 .where("projects.deleted_at IS NULL OR posts.postable_type = ?", "Post::Repost")
                 .visible_to(current_user)
                 .where(user_id: @user.id)
-                .preload(:project, :user, :postable)
+                .preload(:postable)
                 .order(created_at: :desc)
 
     scope = hide_deleted_devlogs(scope) unless policy(@user).view_deleted_devlogs?

@@ -5,9 +5,11 @@ module TimelinePostPreloading
 
   private
 
-  def preload_timeline_postables(posts)
+  def preload_timeline_postables(posts, project_context: false)
     grouped = posts.group_by(&:postable_type)
 
+    preload_timeline_group(posts_requiring_timeline_user(grouped), :user)
+    preload_timeline_group(posts_requiring_timeline_project(grouped, project_context: project_context), :project)
     preload_timeline_group(grouped["Post::Devlog"], postable: :attachments_attachments)
     preload_timeline_group(
       grouped["Post::ShipEvent"],
@@ -15,7 +17,7 @@ module TimelinePostPreloading
     )
     preload_timeline_group(
       grouped[Post::PRIVATE_SHIP_DECISION_TYPE],
-      postable: [ :reviewer, { verdict_video_attachment: :blob } ]
+      postable: [ :reviewer, :verdict_video_attachment ]
     )
   end
 
@@ -25,5 +27,17 @@ module TimelinePostPreloading
     ActiveRecord::Associations::Preloader
       .new(records: records, associations: associations)
       .call
+  end
+
+  def posts_requiring_timeline_user(grouped)
+    grouped.except(Post::PRIVATE_SHIP_DECISION_TYPE).values.flatten
+  end
+
+  def posts_requiring_timeline_project(grouped, project_context:)
+    if project_context
+      grouped.except("Post::ShipEvent", Post::PRIVATE_SHIP_DECISION_TYPE).values.flatten
+    else
+      grouped.values.flatten
+    end
   end
 end

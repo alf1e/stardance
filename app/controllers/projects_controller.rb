@@ -77,14 +77,14 @@ class ProjectsController < ApplicationController
     load_posts = ->(include_deleted_devlogs: false) {
       scope = @project.posts
                        .visible_to(current_user)
-                       .preload(:project, :user, :postable)
+                       .preload(:postable)
                        .order(created_at: :desc)
       unless include_deleted_devlogs
         scope = scope.joins("LEFT JOIN post_devlogs ON posts.postable_type = 'Post::Devlog' AND posts.postable_id = post_devlogs.id")
                      .where("posts.postable_type != 'Post::Devlog' OR post_devlogs.deleted_at IS NULL")
       end
       posts = scope.select { |post| post.postable.present? }
-      preload_timeline_postables(posts)
+      preload_timeline_postables(posts, project_context: true)
       posts
     }
 

@@ -52,12 +52,12 @@ class VotesController < ApplicationController
 
       @timeline_posts = @project.posts
         .without_ship_decisions
-        .preload(:project, :user, :postable)
+        .preload(:postable)
         .where("posts.created_at <= ?", assigned_ship_post.created_at)
         .order(created_at: :desc)
         .select { |post| post.postable.present? }
         .reject { |post| post.postable_type == "Post::ShipEvent" && post.postable.certification_status == "rejected" }
-      preload_timeline_postables(@timeline_posts)
+      preload_timeline_postables(@timeline_posts, project_context: true)
     end
 
     def vote_params
