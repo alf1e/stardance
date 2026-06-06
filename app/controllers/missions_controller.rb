@@ -10,10 +10,24 @@ class MissionsController < ApplicationController
                      .order(featured_at: :desc, name: :asc)
                      .group_by(&:index_bucket)
 
-    @available_missions = buckets[:available] || []
+    @completed_mission_ids = if current_user
+      Mission::Submission
+        .where(status: "approved")
+        .joins(ship_event: :post)
+        .where(posts: { user_id: current_user.id })
+        .distinct
+        .pluck(:mission_id)
+        .to_set
+    else
+      Set.new
+    end
+
+    available = buckets[:available] || []
+    @completed_missions = available.select { |m| @completed_mission_ids.include?(m.id) }
+    @available_missions = available.reject { |m| @completed_mission_ids.include?(m.id) }
     @upcoming_missions  = (buckets[:upcoming] || []).sort_by(&:start_at).first(8)
-    @ended_missions     = (buckets[:ended] || []).sort_by { |m| -m.end_at.to_f }.first(8)
     @draft_missions     = (buckets[:draft] || []).sort_by { |m| -m.updated_at.to_f }
+    @ended_missions     = (buckets[:ended] || []).sort_by { |m| -m.end_at.to_f }.first(8)
   end
 
   def show
