@@ -25,7 +25,8 @@
   padding: var(--space-m) var(--space-l);
   border-radius: 12px;
   background: color-mix(in srgb, var(--color-brand-salmon) 10%, transparent);
-  border: 1px solid color-mix(in srgb, var(--color-brand-salmon) 30%, transparent);
+  border: 1px solid
+    color-mix(in srgb, var(--color-brand-salmon) 30%, transparent);
 }
 
 .mission-home__locked-message {
