@@ -27,9 +27,9 @@ export default class extends Controller {
       this.actionsTarget.hidden = checked.length === 0;
     }
     this.formTargets.forEach((form) => {
-      form.querySelectorAll('input[name="referral_ids[]"]').forEach((el) =>
-        el.remove(),
-      );
+      form
+        .querySelectorAll('input[name="referral_ids[]"]')
+        .forEach((el) => el.remove());
       checked.forEach((cb) => {
         const hidden = document.createElement("input");
         hidden.type = "hidden";
