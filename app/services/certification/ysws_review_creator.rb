@@ -10,7 +10,7 @@ module Certification
     end
 
     def call
-      hours_worked = ship_event.hours || 0
+      hours_worked = ship_event.hours_at_ship.to_f
       original_minutes = (hours_worked * 60).to_i
 
       ActiveRecord::Base.transaction do

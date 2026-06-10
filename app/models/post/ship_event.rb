@@ -8,6 +8,7 @@
 #  feedback_reason            :text
 #  feedback_video_url         :string
 #  hours_at_payout            :float
+#  hours_at_ship              :float
 #  multiplier                 :float
 #  originality_median         :decimal(5, 2)
 #  originality_percentile     :decimal(5, 2)
@@ -70,46 +71,6 @@ class Post::ShipEvent < ApplicationRecord
   validates :review_instructions, length: { maximum: REVIEW_INSTRUCTIONS_MAX_LENGTH }, allow_blank: true
   validate :project_can_be_shipped, on: :create
   has_paper_trail ignore: [ :votes_count, :synced_at ]
-
-  def majority_judgment
-    MajorityJudgmentService.call(self)
-  end
-
-  def hours
-    project = post&.project
-    return 0 unless project && created_at
-
-    ship_event_post = post
-    previous_ship_event_post = project.posts.of_ship_events
-                                      .where("posts.created_at < ?", ship_event_post.created_at)
-                                      .order("posts.created_at DESC")
-                                      .first
-
-    # created_at if first otherwise use the last ship_event
-    start_time = previous_ship_event_post ? previous_ship_event_post.created_at : project.created_at
-
-    seconds = project.posts.of_devlogs(join: true)
-                     .where("posts.created_at >= ? AND posts.created_at <= ?", start_time, ship_event_post.created_at)
-                     .where(post_devlogs: { deleted_at: nil })
-                     .sum("post_devlogs.duration_seconds")
-    seconds.to_f / 3600
-  end
-
-  def payout_eligible?
-    return false unless certification_status == "approved"
-    return false unless payout.blank?
-    return false unless votes.payout_countable.count >= VOTES_REQUIRED_FOR_PAYOUT
-
-    payout_user = payout_recipient
-    return false unless payout_user
-    return false if payout_user.vote_balance < 0
-
-    true
-  end
-
-  def payout_recipient
-    post&.user
-  end
 
   private
 
