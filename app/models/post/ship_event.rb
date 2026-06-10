@@ -3,14 +3,11 @@
 # Table name: post_ship_events
 #
 #  id                         :bigint           not null, primary key
-#  base_hours                 :float
 #  body                       :string
-#  bridge                     :boolean          default(FALSE), not null
 #  certification_status       :string           default("pending")
 #  feedback_reason            :text
 #  feedback_video_url         :string
 #  hours_at_payout            :float
-#  legacy_payout_deduction    :float
 #  multiplier                 :float
 #  originality_median         :decimal(5, 2)
 #  originality_percentile     :decimal(5, 2)
@@ -31,7 +28,6 @@
 #  usability_median           :decimal(5, 2)
 #  usability_percentile       :decimal(5, 2)
 #  votes_count                :integer          default(0), not null
-#  voting_scale_version       :integer          default(2), not null
 #  created_at                 :datetime         not null
 #  updated_at                 :datetime         not null
 #
@@ -41,8 +37,6 @@ class Post::ShipEvent < ApplicationRecord
   include SemanticSearchIndexable
   semantic_search_indexable type: "ship"
 
-  LEGACY_VOTING_SCALE_VERSION = 1
-  CURRENT_VOTING_SCALE_VERSION = 2
   VOTES_REQUIRED_FOR_PAYOUT = 12
   VOTES_TO_LEAVE_POOL = VOTES_REQUIRED_FOR_PAYOUT
   VOTE_COST_PER_SHIP = 15
@@ -69,10 +63,6 @@ class Post::ShipEvent < ApplicationRecord
                                dependent: :destroy
 
   after_update :sync_mission_submission_status, if: :saved_change_to_certification_status?
-
-  scope :current_voting_scale, -> { where(voting_scale_version: CURRENT_VOTING_SCALE_VERSION) }
-  scope :legacy_voting_scale, -> { where(voting_scale_version: LEGACY_VOTING_SCALE_VERSION) }
-
   after_commit :decrement_user_vote_balance, on: :create
 
   validates :body, presence: { message: "Update message can't be blank" }
@@ -107,7 +97,6 @@ class Post::ShipEvent < ApplicationRecord
 
   def payout_eligible?
     return false unless certification_status == "approved"
-    return false unless current_voting_scale?
     return false unless payout.blank?
     return false unless votes.payout_countable.count >= VOTES_REQUIRED_FOR_PAYOUT
 
@@ -120,14 +109,6 @@ class Post::ShipEvent < ApplicationRecord
 
   def payout_recipient
     post&.user
-  end
-
-  def current_voting_scale?
-    voting_scale_version == CURRENT_VOTING_SCALE_VERSION
-  end
-
-  def legacy_voting_scale?
-    voting_scale_version == LEGACY_VOTING_SCALE_VERSION
   end
 
   private
