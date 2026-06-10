@@ -1,14 +1,19 @@
 import { Controller } from "@hotwired/stimulus";
 import { DirectUpload } from "@rails/activestorage";
 
-// Drag-and-drop video input with immediate Active Storage direct-upload.
-// On file pick/drop the video is sent to storage straight away (not on form
-// submit) also a progress bar tracks the
-// transfer; and the submit button is locked/waiting until the upload finishes :)
+// Drag-and-drop video input with immediate Active Storage direct upload.
+// Picking or dropping a file starts the upload right away (not on form
+// submit), with a progress bar tracking the transfer. The controller lives on
+// the verdict form (not the drop zone) so it can also lock the submit button
+// until the upload finishes; the form then posts the blob's signed id instead
+// of the raw bytes. Client checks mirror the server rules
+// (Certification::Ship), so a file the model would reject gets caught here
+// with a message instead of a silent failure.
 const ACCEPTED = ["video/mp4", "video/webm", "video/quicktime"];
 
 export default class extends Controller {
   static targets = [
+    "zone",
     "input",
     "prompt",
     "preview",
@@ -19,7 +24,7 @@ export default class extends Controller {
     "progressBar",
     "submitBtn",
   ];
-  static classes = ["over", "accepted", "uploading", "done", "error"];
+  static classes = ["over", "uploading", "done", "error"];
   static values = { directUploadUrl: String };
 
   open() {
@@ -28,17 +33,17 @@ export default class extends Controller {
 
   over(event) {
     event.preventDefault();
-    this.element.classList.add(this.overClass);
+    this.zoneTarget.classList.add(this.overClass);
   }
 
   leave(event) {
     event.preventDefault();
-    this.element.classList.remove(this.overClass);
+    this.zoneTarget.classList.remove(this.overClass);
   }
 
   drop(event) {
     event.preventDefault();
-    this.element.classList.remove(this.overClass);
+    this.zoneTarget.classList.remove(this.overClass);
 
     const file = event.dataTransfer.files?.[0];
     if (!file) return;
@@ -63,11 +68,7 @@ export default class extends Controller {
     this.videoTarget.src = this.objectUrl;
     this.filenameTarget.textContent = file.name;
 
-    this.element.classList.remove(
-      this.errorClass,
-      this.doneClass,
-      this.acceptedClass,
-    );
+    this.zoneTarget.classList.remove(this.errorClass, this.doneClass);
     this.promptTarget.hidden = true;
     this.previewTarget.hidden = false;
 
@@ -75,12 +76,21 @@ export default class extends Controller {
   }
 
   startUpload(file) {
+    // Replacing the video mid-upload starts a new transfer; the token makes
+    // the superseded upload's callbacks no-ops so it can't clobber the new
+    // one's progress or blob field.
+    const token = (this.uploadToken = (this.uploadToken || 0) + 1);
+    this.blobField?.remove();
+    this.blobField = null;
+
     this.setUploading(true);
     this.setProgress(0);
-    this.statusTarget.textContent = `Uploading… 0 %`;
+    this.statusTarget.textContent = "Uploading… 0%";
 
     const upload = new DirectUpload(file, this.directUploadUrlValue, this);
     upload.create((error, blob) => {
+      if (token !== this.uploadToken) return;
+
       if (error) {
         this.reject(`Upload failed: ${error}`);
         return;
@@ -95,35 +105,39 @@ export default class extends Controller {
       this.blobField = hiddenField;
 
       this.setUploading(false);
-      this.element.classList.add(this.doneClass);
+      this.zoneTarget.classList.add(this.doneClass);
       this.statusTarget.textContent = `✓ Uploaded — ${this.mb(file.size)}`;
     });
   }
 
   directUploadWillStoreFileWithXHR(xhr) {
+    const token = this.uploadToken;
     xhr.upload.addEventListener("progress", (event) => {
+      if (token !== this.uploadToken) return;
       if (event.lengthComputable) {
         const pct = Math.round((event.loaded / event.total) * 100);
         this.setProgress(pct);
-        this.statusTarget.textContent = `Uploading… ${pct} %`;
+        this.statusTarget.textContent = `Uploading… ${pct}%`;
       }
     });
   }
 
+  // Belt and braces with the disabled submit button: blocks Enter-key and
+  // any other submit path while a transfer is in flight.
+  guardSubmit(event) {
+    if (this.uploading) event.preventDefault();
+  }
+
   reject(message) {
+    this.uploadToken = (this.uploadToken || 0) + 1;
     this.inputTarget.value = "";
     this.revoke();
     this.blobField?.remove();
     this.blobField = null;
-    this.element.classList.remove(
-      this.acceptedClass,
-      this.uploadingClass,
-      this.doneClass,
-    );
-    this.element.classList.add(this.errorClass);
+    this.zoneTarget.classList.remove(this.doneClass);
+    this.zoneTarget.classList.add(this.errorClass);
     this.previewTarget.hidden = true;
     this.promptTarget.hidden = false;
-    this.progressWrapperTarget.hidden = true;
     this.statusTarget.textContent = message;
     this.setUploading(false);
   }
@@ -137,17 +151,14 @@ export default class extends Controller {
 
   setProgress(pct) {
     this.progressWrapperTarget.hidden = false;
+    this.progressWrapperTarget.setAttribute("aria-valuenow", pct);
     this.progressBarTarget.style.width = `${pct}%`;
-    this.progressBarTarget.setAttribute("aria-valuenow", pct);
   }
 
   setUploading(uploading) {
-    if (uploading) {
-      this.element.classList.add(this.uploadingClass);
-    } else {
-      this.element.classList.remove(this.uploadingClass);
-      this.progressWrapperTarget.hidden = true;
-    }
+    this.uploading = uploading;
+    this.zoneTarget.classList.toggle(this.uploadingClass, uploading);
+    if (!uploading) this.progressWrapperTarget.hidden = true;
 
     if (this.hasSubmitBtnTarget) {
       this.submitBtnTarget.disabled = uploading;
