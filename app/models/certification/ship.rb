@@ -156,7 +156,7 @@ module Certification
         projects: scope.distinct.count(:project_id),
         approved: counts["approved"].to_i,
         returned: counts["returned"].to_i,
-        last_returned: scope.returned.order(decided_at: :desc).first
+        recent: scope.includes(:project, :reviewer, :returned_by).order(created_at: :desc).limit(6)
       }
     end
 
