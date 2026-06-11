@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_09_182558) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_10_172657) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -614,6 +614,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_09_182558) do
     t.index ["mission_id"], name: "index_project_mission_attachments_on_mission_id"
     t.index ["project_id", "mission_id"], name: "index_project_mission_attachments_active", unique: true, where: "((detached_at IS NULL) AND (deleted_at IS NULL))"
     t.index ["project_id"], name: "index_project_mission_attachments_on_project_id"
+    t.index ["project_id"], name: "index_project_mission_attachments_one_active", unique: true, where: "((detached_at IS NULL) AND (deleted_at IS NULL))"
   end
 
   create_table "project_reports", force: :cascade do |t|
@@ -1211,6 +1212,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_09_182558) do
     t.boolean "manual_ysws_override"
     t.boolean "mission_review_notifications", default: true, null: false
     t.datetime "onboarded_at"
+    t.datetime "outpost_email_sent_at"
     t.string "ref"
     t.string "regions", default: [], array: true
     t.string "session_token"

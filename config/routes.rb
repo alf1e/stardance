@@ -609,6 +609,7 @@ Rails.application.routes.draw do
         get  :votes
       end
     end
+    get "super_stars", to: "super_stars#show", as: :super_stars
     get "user-perms", to: "users#user_perms"
     resource :support, only: [ :show ], controller: "support/dashboards"
     resource :fraud, only: [ :show ], controller: "fraud/dashboards"
@@ -807,9 +808,12 @@ Rails.application.routes.draw do
     resource :mission, only: [ :create, :destroy ], module: :projects, controller: "missions"
     resource :magic, only: [ :create, :destroy ], module: :projects, controller: "magic"
     resource :fire_nomination, only: [ :create, :destroy ], module: :projects
+    # shallow: false — the guide JS deletes at the nested path, and the
+    # controller needs :project_id to scope the completion.
     resources :mission_section_completions,
               only: [ :create, :destroy ],
               module: :projects,
+              shallow: false,
               param: :mission_step_id
     member do
       get :readme
