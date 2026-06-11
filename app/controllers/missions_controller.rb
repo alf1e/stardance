@@ -79,6 +79,12 @@ class MissionsController < ApplicationController
     @ordered_steps       = @mission.steps.where(deleted_at: nil).ordered.includes(:bodies).to_a
     @guide_outline       = @mission.guide_sections
     @active_project      = current_user&.active_project_for_mission(@mission)
+    # Remote progress sync needs an active attachment (the project may have
+    # moved on to a follow-up mission); otherwise the guide is read-only.
+    @progress_syncable   = @active_project.present? &&
+                           @active_project.mission_attachments
+                                          .where(mission_id: @mission.id, detached_at: nil)
+                                          .exists?
     @completed_step_ids  = if @active_project
       @active_project.mission_section_completions
                      .where(mission_id: @mission.id)
