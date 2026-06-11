@@ -128,25 +128,13 @@ class Mission < ApplicationRecord
   def prerequisites_met_by?(user)
     return true unless has_prerequisites?
     return false if user.nil?
-    completed_mission_ids = Mission::Submission
-      .where(status: "approved")
-      .joins(ship_event: :post)
-      .where(posts: { user_id: user.id })
-      .distinct
-      .pluck(:mission_id)
-    (prerequisite_ids - completed_mission_ids).empty?
+    (prerequisite_ids - user.completed_mission_ids).empty?
   end
 
   def unmet_prerequisites_for(user)
     return [] unless has_prerequisites?
     return prerequisites.to_a if user.nil?
-    completed_mission_ids = Mission::Submission
-      .where(status: "approved")
-      .joins(ship_event: :post)
-      .where(posts: { user_id: user.id })
-      .distinct
-      .pluck(:mission_id)
-    prerequisites.where.not(id: completed_mission_ids).to_a
+    prerequisites.where.not(id: user.completed_mission_ids).to_a
   end
 
   def achievement_slug
@@ -381,7 +369,7 @@ class Mission < ApplicationRecord
 
   def approved_submission_project_ids
     submissions
-      .where(status: "approved")
+      .approved
       .joins(ship_event: :post)
       .distinct
       .pluck("posts.project_id")

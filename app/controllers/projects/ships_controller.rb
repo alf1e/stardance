@@ -104,11 +104,7 @@ class Projects::ShipsController < ApplicationController
     end
 
     def user_has_approved_submission_for?(mission)
-      Mission::Submission
-        .where(mission_id: mission.id, status: "approved")
-        .joins(ship_event: { post: :user })
-        .where(users: { id: current_user.id })
-        .exists?
+      current_user.completed_mission_ids.include?(mission.id)
     end
 
     def user_redeemed_prize_for?(mission)

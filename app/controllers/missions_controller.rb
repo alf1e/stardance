@@ -10,17 +10,7 @@ class MissionsController < ApplicationController
                      .order(featured_at: :desc, name: :asc)
                      .group_by(&:index_bucket)
 
-    @completed_mission_ids = if current_user
-      Mission::Submission
-        .where(status: "approved")
-        .joins(ship_event: :post)
-        .where(posts: { user_id: current_user.id })
-        .distinct
-        .pluck(:mission_id)
-        .to_set
-    else
-      Set.new
-    end
+    @completed_mission_ids = (current_user&.completed_mission_ids || []).to_set
 
     available = buckets[:available] || []
     @completed_missions = available.select { |m| @completed_mission_ids.include?(m.id) }
@@ -157,7 +147,7 @@ class MissionsController < ApplicationController
   def mission_stats(mission)
     {
       reviewed_count:  mission.submissions.where.not(status: "awaiting_certification").count,
-      approved_count:  mission.submissions.where(status: "approved").count,
+      approved_count:  mission.submissions.approved.count,
       active_projects: mission.attachments.active.distinct.count(:project_id)
     }
   end
