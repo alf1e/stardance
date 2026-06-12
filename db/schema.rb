@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_10_172657) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_11_150333) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -226,6 +226,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_172657) do
     t.index ["commentable_type", "commentable_id"], name: "index_comments_on_commentable"
     t.index ["deleted_at"], name: "index_comments_on_deleted_at"
     t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "daily_rolls", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.date "rolled_on", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.integer "value", null: false
+    t.index ["rolled_on", "value"], name: "index_daily_rolls_on_rolled_on_and_value"
+    t.index ["user_id", "rolled_on"], name: "index_daily_rolls_on_user_id_and_rolled_on", unique: true
+    t.index ["user_id"], name: "index_daily_rolls_on_user_id"
   end
 
   create_table "devlog_versions", force: :cascade do |t|
@@ -1308,6 +1319,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_10_172657) do
   add_foreign_key "certification_ysws_reviews", "users", column: "reviewer_id"
   add_foreign_key "certification_ysws_reviews", "users", column: "spotchecked_by_id"
   add_foreign_key "comments", "users"
+  add_foreign_key "daily_rolls", "users"
   add_foreign_key "devlog_versions", "post_devlogs", column: "devlog_id"
   add_foreign_key "devlog_versions", "users"
   add_foreign_key "follows", "users", column: "followed_id"
