@@ -312,8 +312,12 @@ class Project < ApplicationRecord
     shipped_at.present? || !draft?
   end
 
-  def self.hardware_flow_enabled?
-    Flipper.enabled?(:hardware_flow)
+  def self.hardware_flow_enabled?(user = nil)
+    if user
+      Flipper.enabled?(:hardware_flow, user)
+    else
+      Flipper.enabled?(:hardware_flow)
+    end
   end
 
   # Hardware projects are the ones with a stage set; software projects leave it
