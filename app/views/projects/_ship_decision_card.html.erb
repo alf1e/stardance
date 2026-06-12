@@ -38,7 +38,7 @@
         <span class="feed-post-card__context"><%= approved ? "approved" : "returned" %></span>
         <span class="ship-decision-card__subject">your project</span>
         <time class="feed-post-card__time" datetime="<%= decided_on.iso8601 %>" title="<%= l(decided_on, format: :long) %>">
-          · <%= time_ago_in_words(decided_on) %>
+          · <%= time_ago_in_words(decided_on) %> ago
         </time>
       </p>
     </div>
