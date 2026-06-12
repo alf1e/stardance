@@ -2,277 +2,313 @@
 // Run that command whenever you add a new controller or create them with
 // ./bin/rails generate stimulus controllerName
 
-import { application } from "./application"
+import { application } from "./application";
+
+import AchievementHighlightController from "./achievement_highlight_controller";
+application.register("achievement-highlight", AchievementHighlightController);
+
+import AddressSelectController from "./address_select_controller";
+application.register("address-select", AddressSelectController);
+
+import BioEditorController from "./bio_editor_controller";
+application.register("bio-editor", BioEditorController);
+
+import BulkSelectController from "./bulk_select_controller";
+application.register("bulk-select", BulkSelectController);
+
+import Certification__FeedbackTemplatesController from "./certification/feedback_templates_controller";
+application.register(
+  "certification--feedback-templates",
+  Certification__FeedbackTemplatesController,
+);
 
-import AchievementHighlightController from "./achievement_highlight_controller"
-application.register("achievement-highlight", AchievementHighlightController)
+import Certification__QueueController from "./certification/queue_controller";
+application.register("certification--queue", Certification__QueueController);
 
-import AddressSelectController from "./address_select_controller"
-application.register("address-select", AddressSelectController)
+import Certification__VideoDropController from "./certification/video_drop_controller";
+application.register(
+  "certification--video-drop",
+  Certification__VideoDropController,
+);
 
-import BioEditorController from "./bio_editor_controller"
-application.register("bio-editor", BioEditorController)
+import Certification__Ysws__CompleteReviewController from "./certification/ysws/complete_review_controller";
+application.register(
+  "certification--ysws--complete-review",
+  Certification__Ysws__CompleteReviewController,
+);
 
-import BulkSelectController from "./bulk_select_controller"
-application.register("bulk-select", BulkSelectController)
+import Certification__Ysws__DevlogReviewController from "./certification/ysws/devlog_review_controller";
+application.register(
+  "certification--ysws--devlog-review",
+  Certification__Ysws__DevlogReviewController,
+);
 
-import Certification__FeedbackTemplatesController from "./certification/feedback_templates_controller"
-application.register("certification--feedback-templates", Certification__FeedbackTemplatesController)
+import Certification__Ysws__DevlogTimeChartController from "./certification/ysws/devlog_time_chart_controller";
+application.register(
+  "certification--ysws--devlog-time-chart",
+  Certification__Ysws__DevlogTimeChartController,
+);
 
-import Certification__QueueController from "./certification/queue_controller"
-application.register("certification--queue", Certification__QueueController)
+import Certification__Ysws__FraudReportController from "./certification/ysws/fraud_report_controller";
+application.register(
+  "certification--ysws--fraud-report",
+  Certification__Ysws__FraudReportController,
+);
 
-import Certification__VideoDropController from "./certification/video_drop_controller"
-application.register("certification--video-drop", Certification__VideoDropController)
+import Certification__Ysws__GithubCalendarController from "./certification/ysws/github_calendar_controller";
+application.register(
+  "certification--ysws--github-calendar",
+  Certification__Ysws__GithubCalendarController,
+);
 
-import Certification__Ysws__CompleteReviewController from "./certification/ysws/complete_review_controller"
-application.register("certification--ysws--complete-review", Certification__Ysws__CompleteReviewController)
+import Certification__Ysws__MediaViewerController from "./certification/ysws/media_viewer_controller";
+application.register(
+  "certification--ysws--media-viewer",
+  Certification__Ysws__MediaViewerController,
+);
 
-import Certification__Ysws__DevlogReviewController from "./certification/ysws/devlog_review_controller"
-application.register("certification--ysws--devlog-review", Certification__Ysws__DevlogReviewController)
+import Certification__Ysws__ReturnToShipCertController from "./certification/ysws/return_to_ship_cert_controller";
+application.register(
+  "certification--ysws--return-to-ship-cert",
+  Certification__Ysws__ReturnToShipCertController,
+);
 
-import Certification__Ysws__DevlogTimeChartController from "./certification/ysws/devlog_time_chart_controller"
-application.register("certification--ysws--devlog-time-chart", Certification__Ysws__DevlogTimeChartController)
+import Certification__Ysws__ReviewSidebarController from "./certification/ysws/review_sidebar_controller";
+application.register(
+  "certification--ysws--review-sidebar",
+  Certification__Ysws__ReviewSidebarController,
+);
 
-import Certification__Ysws__FraudReportController from "./certification/ysws/fraud_report_controller"
-application.register("certification--ysws--fraud-report", Certification__Ysws__FraudReportController)
+import CommandPaletteController from "./command_palette_controller";
+application.register("command-palette", CommandPaletteController);
 
-import Certification__Ysws__GithubCalendarController from "./certification/ysws/github_calendar_controller"
-application.register("certification--ysws--github-calendar", Certification__Ysws__GithubCalendarController)
+import CommentModalController from "./comment_modal_controller";
+application.register("comment-modal", CommentModalController);
 
-import Certification__Ysws__MediaViewerController from "./certification/ysws/media_viewer_controller"
-application.register("certification--ysws--media-viewer", Certification__Ysws__MediaViewerController)
+import ComposerController from "./composer_controller";
+application.register("composer", ComposerController);
 
-import Certification__Ysws__ReturnToShipCertController from "./certification/ysws/return_to_ship_cert_controller"
-application.register("certification--ysws--return-to-ship-cert", Certification__Ysws__ReturnToShipCertController)
+import CopyController from "./copy_controller";
+application.register("copy", CopyController);
 
-import Certification__Ysws__ReviewSidebarController from "./certification/ysws/review_sidebar_controller"
-application.register("certification--ysws--review-sidebar", Certification__Ysws__ReviewSidebarController)
+import CountUpController from "./count_up_controller";
+application.register("count-up", CountUpController);
 
-import CommandPaletteController from "./command_palette_controller"
-application.register("command-palette", CommandPaletteController)
+import CountdownClockController from "./countdown_clock_controller";
+application.register("countdown-clock", CountdownClockController);
 
-import CommentModalController from "./comment_modal_controller"
-application.register("comment-modal", CommentModalController)
+import CountdownController from "./countdown_controller";
+application.register("countdown", CountdownController);
 
-import ComposerController from "./composer_controller"
-application.register("composer", ComposerController)
+import CurveDrawController from "./curve_draw_controller";
+application.register("curve-draw", CurveDrawController);
 
-import CopyController from "./copy_controller"
-application.register("copy", CopyController)
+import CustomsWarningController from "./customs_warning_controller";
+application.register("customs-warning", CustomsWarningController);
 
-import CountUpController from "./count_up_controller"
-application.register("count-up", CountUpController)
+import DailyRollController from "./daily_roll_controller";
+application.register("daily-roll", DailyRollController);
 
-import CountdownClockController from "./countdown_clock_controller"
-application.register("countdown-clock", CountdownClockController)
+import DecisionTreeController from "./decision_tree_controller";
+application.register("decision-tree", DecisionTreeController);
 
-import CountdownController from "./countdown_controller"
-application.register("countdown", CountdownController)
+import DevlogEditController from "./devlog_edit_controller";
+application.register("devlog-edit", DevlogEditController);
 
-import CurveDrawController from "./curve_draw_controller"
-application.register("curve-draw", CurveDrawController)
+import DiscoverRailSearchController from "./discover_rail_search_controller";
+application.register("discover-rail-search", DiscoverRailSearchController);
 
-import CustomsWarningController from "./customs_warning_controller"
-application.register("customs-warning", CustomsWarningController)
+import DismissableController from "./dismissable_controller";
+application.register("dismissable", DismissableController);
 
-import DailyRollController from "./daily_roll_controller"
-application.register("daily-roll", DailyRollController)
+import EmojiPickerController from "./emoji_picker_controller";
+application.register("emoji-picker", EmojiPickerController);
 
-import DecisionTreeController from "./decision_tree_controller"
-application.register("decision-tree", DecisionTreeController)
+import EventTimeController from "./event_time_controller";
+application.register("event-time", EventTimeController);
 
-import DevlogEditController from "./devlog_edit_controller"
-application.register("devlog-edit", DevlogEditController)
+import FallingStarController from "./falling_star_controller";
+application.register("falling-star", FallingStarController);
 
-import DiscoverRailSearchController from "./discover_rail_search_controller"
-application.register("discover-rail-search", DiscoverRailSearchController)
+import FaqAccordionController from "./faq_accordion_controller";
+application.register("faq-accordion", FaqAccordionController);
 
-import DismissableController from "./dismissable_controller"
-application.register("dismissable", DismissableController)
+import FeedEngagementController from "./feed_engagement_controller";
+application.register("feed-engagement", FeedEngagementController);
 
-import EmojiPickerController from "./emoji_picker_controller"
-application.register("emoji-picker", EmojiPickerController)
+import FeedKeyboardController from "./feed_keyboard_controller";
+application.register("feed-keyboard", FeedKeyboardController);
 
-import EventTimeController from "./event_time_controller"
-application.register("event-time", EventTimeController)
+import FileUploadController from "./file_upload_controller";
+application.register("file-upload", FileUploadController);
 
-import FallingStarController from "./falling_star_controller"
-application.register("falling-star", FallingStarController)
+import FlashController from "./flash_controller";
+application.register("flash", FlashController);
 
-import FaqAccordionController from "./faq_accordion_controller"
-application.register("faq-accordion", FaqAccordionController)
+import FormSubmitOnceController from "./form_submit_once_controller";
+application.register("form-submit-once", FormSubmitOnceController);
 
-import FeedEngagementController from "./feed_engagement_controller"
-application.register("feed-engagement", FeedEngagementController)
+import GuidePreviewController from "./guide_preview_controller";
+application.register("guide-preview", GuidePreviewController);
 
-import FeedKeyboardController from "./feed_keyboard_controller"
-application.register("feed-keyboard", FeedKeyboardController)
+import HackatimeLinkController from "./hackatime_link_controller";
+application.register("hackatime-link", HackatimeLinkController);
 
-import FileUploadController from "./file_upload_controller"
-application.register("file-upload", FileUploadController)
+import HcbChartController from "./hcb_chart_controller";
+application.register("hcb-chart", HcbChartController);
 
-import FlashController from "./flash_controller"
-application.register("flash", FlashController)
+import HeroWarpController from "./hero_warp_controller";
+application.register("hero-warp", HeroWarpController);
 
-import FormSubmitOnceController from "./form_submit_once_controller"
-application.register("form-submit-once", FormSubmitOnceController)
+import HorizontalScrollController from "./horizontal_scroll_controller";
+application.register("horizontal-scroll", HorizontalScrollController);
 
-import GuidePreviewController from "./guide_preview_controller"
-application.register("guide-preview", GuidePreviewController)
+import JsonHighlightController from "./json_highlight_controller";
+application.register("json-highlight", JsonHighlightController);
 
-import HackatimeLinkController from "./hackatime_link_controller"
-application.register("hackatime-link", HackatimeLinkController)
+import LookoutCaptureController from "./lookout_capture_controller";
+application.register("lookout-capture", LookoutCaptureController);
 
-import HcbChartController from "./hcb_chart_controller"
-application.register("hcb-chart", HcbChartController)
+import LookoutRecorderController from "./lookout_recorder_controller";
+application.register("lookout-recorder", LookoutRecorderController);
 
-import HeroWarpController from "./hero_warp_controller"
-application.register("hero-warp", HeroWarpController)
+import MarkdownPreviewController from "./markdown_preview_controller";
+application.register("markdown-preview", MarkdownPreviewController);
 
-import HorizontalScrollController from "./horizontal_scroll_controller"
-application.register("horizontal-scroll", HorizontalScrollController)
+import MissionGuideLanguageController from "./mission_guide_language_controller";
+application.register("mission-guide-language", MissionGuideLanguageController);
 
-import JsonHighlightController from "./json_highlight_controller"
-application.register("json-highlight", JsonHighlightController)
+import MissionGuideProgressController from "./mission_guide_progress_controller";
+application.register("mission-guide-progress", MissionGuideProgressController);
 
-import LookoutCaptureController from "./lookout_capture_controller"
-application.register("lookout-capture", LookoutCaptureController)
+import MissionGuideVariablesController from "./mission_guide_variables_controller";
+application.register(
+  "mission-guide-variables",
+  MissionGuideVariablesController,
+);
 
-import LookoutRecorderController from "./lookout_recorder_controller"
-application.register("lookout-recorder", LookoutRecorderController)
+import ModalController from "./modal_controller";
+application.register("modal", ModalController);
 
-import MarkdownPreviewController from "./markdown_preview_controller"
-application.register("markdown-preview", MarkdownPreviewController)
+import NotificationActorsController from "./notification_actors_controller";
+application.register("notification-actors", NotificationActorsController);
 
-import MissionGuideLanguageController from "./mission_guide_language_controller"
-application.register("mission-guide-language", MissionGuideLanguageController)
+import NotificationsBadgeController from "./notifications_badge_controller";
+application.register("notifications-badge", NotificationsBadgeController);
 
-import MissionGuideProgressController from "./mission_guide_progress_controller"
-application.register("mission-guide-progress", MissionGuideProgressController)
+import NotificationsInboxController from "./notifications_inbox_controller";
+application.register("notifications-inbox", NotificationsInboxController);
 
-import MissionGuideVariablesController from "./mission_guide_variables_controller"
-application.register("mission-guide-variables", MissionGuideVariablesController)
+import OnboardingExperienceSliderController from "./onboarding_experience_slider_controller";
+application.register(
+  "onboarding-experience-slider",
+  OnboardingExperienceSliderController,
+);
 
-import ModalController from "./modal_controller"
-application.register("modal", ModalController)
+import OnboardingInterestsController from "./onboarding_interests_controller";
+application.register("onboarding-interests", OnboardingInterestsController);
 
-import NotificationActorsController from "./notification_actors_controller"
-application.register("notification-actors", NotificationActorsController)
+import OnboardingTransitionController from "./onboarding_transition_controller";
+application.register("onboarding-transition", OnboardingTransitionController);
 
-import NotificationsBadgeController from "./notifications_badge_controller"
-application.register("notifications-badge", NotificationsBadgeController)
+import OrderFormController from "./order_form_controller";
+application.register("order-form", OrderFormController);
 
-import NotificationsInboxController from "./notifications_inbox_controller"
-application.register("notifications-inbox", NotificationsInboxController)
+import ParallaxController from "./parallax_controller";
+application.register("parallax", ParallaxController);
 
-import OnboardingExperienceSliderController from "./onboarding_experience_slider_controller"
-application.register("onboarding-experience-slider", OnboardingExperienceSliderController)
+import PostMenuController from "./post_menu_controller";
+application.register("post-menu", PostMenuController);
 
-import OnboardingInterestsController from "./onboarding_interests_controller"
-application.register("onboarding-interests", OnboardingInterestsController)
+import PrizeFloatController from "./prize_float_controller";
+application.register("prize-float", PrizeFloatController);
 
-import OnboardingTransitionController from "./onboarding_transition_controller"
-application.register("onboarding-transition", OnboardingTransitionController)
+import ProfileEditController from "./profile_edit_controller";
+application.register("profile-edit", ProfileEditController);
 
-import OrderFormController from "./order_form_controller"
-application.register("order-form", OrderFormController)
+import ProfileModalController from "./profile_modal_controller";
+application.register("profile-modal", ProfileModalController);
 
-import ParallaxController from "./parallax_controller"
-application.register("parallax", ParallaxController)
+import ProjectBuilderController from "./project_builder_controller";
+application.register("project-builder", ProjectBuilderController);
 
-import PostMenuController from "./post_menu_controller"
-application.register("post-menu", PostMenuController)
+import ProjectCreationController from "./project_creation_controller";
+application.register("project-creation", ProjectCreationController);
 
-import PrizeFloatController from "./prize_float_controller"
-application.register("prize-float", PrizeFloatController)
+import ProjectFormController from "./project_form_controller";
+application.register("project-form", ProjectFormController);
 
-import ProfileEditController from "./profile_edit_controller"
-application.register("profile-edit", ProfileEditController)
+import ProjectThumbsLoopController from "./project_thumbs_loop_controller";
+application.register("project-thumbs-loop", ProjectThumbsLoopController);
 
-import ProfileModalController from "./profile_modal_controller"
-application.register("profile-modal", ProfileModalController)
+import ProjectThumbsScrollController from "./project_thumbs_scroll_controller";
+application.register("project-thumbs-scroll", ProjectThumbsScrollController);
 
-import ProjectBuilderController from "./project_builder_controller"
-application.register("project-builder", ProjectBuilderController)
+import ProjectTypeController from "./project_type_controller";
+application.register("project-type", ProjectTypeController);
 
-import ProjectCreationController from "./project_creation_controller"
-application.register("project-creation", ProjectCreationController)
+import ReadmeImageController from "./readme_image_controller";
+application.register("readme-image", ReadmeImageController);
 
-import ProjectFormController from "./project_form_controller"
-application.register("project-form", ProjectFormController)
+import RevealOnScrollController from "./reveal_on_scroll_controller";
+application.register("reveal-on-scroll", RevealOnScrollController);
 
-import ProjectThumbsLoopController from "./project_thumbs_loop_controller"
-application.register("project-thumbs-loop", ProjectThumbsLoopController)
+import RocketArcController from "./rocket_arc_controller";
+application.register("rocket-arc", RocketArcController);
 
-import ProjectThumbsScrollController from "./project_thumbs_scroll_controller"
-application.register("project-thumbs-scroll", ProjectThumbsScrollController)
+import RsvpCounterController from "./rsvp_counter_controller";
+application.register("rsvp-counter", RsvpCounterController);
 
-import ProjectTypeController from "./project_type_controller"
-application.register("project-type", ProjectTypeController)
+import ScrollRestoreController from "./scroll_restore_controller";
+application.register("scroll-restore", ScrollRestoreController);
 
-import ReadmeImageController from "./readme_image_controller"
-application.register("readme-image", ReadmeImageController)
+import SearchableSelectController from "./searchable_select_controller";
+application.register("searchable-select", SearchableSelectController);
 
-import RevealOnScrollController from "./reveal_on_scroll_controller"
-application.register("reveal-on-scroll", RevealOnScrollController)
+import ShopController from "./shop_controller";
+application.register("shop", ShopController);
 
-import RocketArcController from "./rocket_arc_controller"
-application.register("rocket-arc", RocketArcController)
+import ShopWishlistController from "./shop_wishlist_controller";
+application.register("shop-wishlist", ShopWishlistController);
 
-import RsvpCounterController from "./rsvp_counter_controller"
-application.register("rsvp-counter", RsvpCounterController)
+import SidebarActiveController from "./sidebar_active_controller";
+application.register("sidebar-active", SidebarActiveController);
 
-import ScrollRestoreController from "./scroll_restore_controller"
-application.register("scroll-restore", ScrollRestoreController)
+import SlackDoodleController from "./slack_doodle_controller";
+application.register("slack-doodle", SlackDoodleController);
 
-import SearchableSelectController from "./searchable_select_controller"
-application.register("searchable-select", SearchableSelectController)
+import SortableController from "./sortable_controller";
+application.register("sortable", SortableController);
 
-import ShopController from "./shop_controller"
-application.register("shop", ShopController)
+import StarImageInputController from "./star_image_input_controller";
+application.register("star-image-input", StarImageInputController);
 
-import ShopWishlistController from "./shop_wishlist_controller"
-application.register("shop-wishlist", ShopWishlistController)
+import SubmitOnMetaEnterController from "./submit_on_meta_enter_controller";
+application.register("submit-on-meta-enter", SubmitOnMetaEnterController);
 
-import SidebarActiveController from "./sidebar_active_controller"
-application.register("sidebar-active", SidebarActiveController)
+import Tilt3dController from "./tilt_3d_controller";
+application.register("tilt-3d", Tilt3dController);
 
-import SlackDoodleController from "./slack_doodle_controller"
-application.register("slack-doodle", SlackDoodleController)
+import TooltipController from "./tooltip_controller";
+application.register("tooltip", TooltipController);
 
-import SortableController from "./sortable_controller"
-application.register("sortable", SortableController)
+import UpgradeModalController from "./upgrade_modal_controller";
+application.register("upgrade-modal", UpgradeModalController);
 
-import StarImageInputController from "./star_image_input_controller"
-application.register("star-image-input", StarImageInputController)
+import UserRefModalController from "./user_ref_modal_controller";
+application.register("user-ref-modal", UserRefModalController);
 
-import SubmitOnMetaEnterController from "./submit_on_meta_enter_controller"
-application.register("submit-on-meta-enter", SubmitOnMetaEnterController)
+import UsernameAvailabilityController from "./username_availability_controller";
+application.register("username-availability", UsernameAvailabilityController);
 
-import Tilt3dController from "./tilt_3d_controller"
-application.register("tilt-3d", Tilt3dController)
+import VimeoPlayerController from "./vimeo_player_controller";
+application.register("vimeo-player", VimeoPlayerController);
 
-import TooltipController from "./tooltip_controller"
-application.register("tooltip", TooltipController)
+import WelcomeTourController from "./welcome_tour_controller";
+application.register("welcome-tour", WelcomeTourController);
 
-import UpgradeModalController from "./upgrade_modal_controller"
-application.register("upgrade-modal", UpgradeModalController)
+import WhatIsThisController from "./what_is_this_controller";
+application.register("what-is-this", WhatIsThisController);
 
-import UserRefModalController from "./user_ref_modal_controller"
-application.register("user-ref-modal", UserRefModalController)
-
-import UsernameAvailabilityController from "./username_availability_controller"
-application.register("username-availability", UsernameAvailabilityController)
-
-import VimeoPlayerController from "./vimeo_player_controller"
-application.register("vimeo-player", VimeoPlayerController)
-
-import WelcomeTourController from "./welcome_tour_controller"
-application.register("welcome-tour", WelcomeTourController)
-
-import WhatIsThisController from "./what_is_this_controller"
-application.register("what-is-this", WhatIsThisController)
-
-import WordCycleController from "./word_cycle_controller"
-application.register("word-cycle", WordCycleController)
+import WordCycleController from "./word_cycle_controller";
+application.register("word-cycle", WordCycleController);
