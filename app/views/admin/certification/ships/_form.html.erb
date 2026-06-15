@@ -4,8 +4,9 @@
       id: "unclaim-form-#{ship.id}" do %>
 <% end %>
 
-<%# The video-drop controller sits on the form (not the drop zone) so its
-    submitBtn target is in scope and it can block submits mid-upload. %>
+<div data-controller="certification--verdict-preview"
+     data-action="submit->certification--verdict-preview#intercept">
+
 <%= form_with model: ship, url: admin_certification_ship_path(ship), method: :patch, class: "review-form",
       data: { controller: "certification--video-drop certification--feedback-templates",
               action: "submit->certification--video-drop#guardSubmit",
@@ -125,3 +126,34 @@
     <%= link_to "Back to queue", admin_certification_ships_path, class: "review-form__back" %>
   </div>
 <% end %>
+
+<dialog class="verdict-preview" data-certification--verdict-preview-target="modal"
+        aria-labelledby="verdict-preview-title">
+  <div class="verdict-preview__panel">
+    <div class="verdict-preview__heading">
+      <h3 id="verdict-preview-title" class="verdict-preview__title">Confirm verdict</h3>
+      <span class="verdict-preview__badge" data-certification--verdict-preview-target="verdict"></span>
+    </div>
+    <p class="verdict-preview__subtitle">Take one last look before this is sent to the user.</p>
+
+    <div class="verdict-preview__feedback" data-certification--verdict-preview-target="feedbackBlock">
+      <h4 class="verdict-preview__feedback-label">Feedback</h4>
+      <p class="verdict-preview__feedback-body" data-certification--verdict-preview-target="feedback"></p>
+    </div>
+    <p class="verdict-preview__no-feedback" data-certification--verdict-preview-target="noFeedback">No feedback written.</p>
+
+    <div class="verdict-preview__actions">
+      <button type="button" class="verdict-preview__btn verdict-preview__btn--secondary"
+              data-action="click->certification--verdict-preview#cancel">
+        Go back
+      </button>
+      <button type="button" class="verdict-preview__btn verdict-preview__btn--primary"
+              data-certification--verdict-preview-target="confirmBtn"
+              data-action="click->certification--verdict-preview#confirm">
+        Confirm &amp; submit
+      </button>
+    </div>
+  </div>
+</dialog>
+
+</div>
