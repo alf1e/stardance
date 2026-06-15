@@ -33,21 +33,26 @@ export default class extends Controller {
     this._close();
   }
 
-
   _buildPreview(form) {
     const checked = form.querySelector("input[name$='[status]']:checked");
     const verdict = checked?.value ?? null;
 
     if (this.hasVerdictTarget) {
       const labels = { approved: "Approve ✓", returned: "Reject ✗" };
-      this.verdictTarget.textContent = verdict ? (labels[verdict] ?? verdict) : "—";
+      this.verdictTarget.textContent = verdict
+        ? (labels[verdict] ?? verdict)
+        : "—";
       this.verdictTarget.dataset.verdict = verdict ?? "";
     }
 
     const feedbackEl = form.querySelector("textarea[name$='[feedback]']");
     const text = feedbackEl?.value.trim() ?? "";
 
-    if (this.hasFeedbackTarget && this.hasFeedbackBlockTarget && this.hasNoFeedbackTarget) {
+    if (
+      this.hasFeedbackTarget &&
+      this.hasFeedbackBlockTarget &&
+      this.hasNoFeedbackTarget
+    ) {
       if (text) {
         this.feedbackTarget.textContent = text;
         this.feedbackBlockTarget.hidden = false;
@@ -69,12 +74,17 @@ export default class extends Controller {
       dialog.setAttribute("open", "");
     }
 
-    this._onCancel = (e) => { e.preventDefault(); this.cancel(); };
+    this._onCancel = (e) => {
+      e.preventDefault();
+      this.cancel();
+    };
     this._onBackdropClick = (e) => {
       const rect = dialog.getBoundingClientRect();
       const outside =
-        e.clientX < rect.left || e.clientX > rect.right ||
-        e.clientY < rect.top  || e.clientY > rect.bottom;
+        e.clientX < rect.left ||
+        e.clientX > rect.right ||
+        e.clientY < rect.top ||
+        e.clientY > rect.bottom;
       if (outside) this.cancel();
     };
     dialog.addEventListener("cancel", this._onCancel);
