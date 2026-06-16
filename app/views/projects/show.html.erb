@@ -552,6 +552,19 @@
                       tooltip_position_value: "top"
                     }
                   ) %>
+            <% elsif !@project.info_complete? %>
+              <%= render ActionButtonComponent.new(
+                    text: "Submit Design to Get Project Funding",
+                    variant: :primary,
+                    type: :button,
+                    icon: "icons/rocket.png",
+                    disabled: :soft,
+                    data: {
+                      controller: "tooltip",
+                      tooltip_message_value: "Complete project info first!",
+                      tooltip_position_value: "top"
+                    }
+                  ) %>
             <% else %>
               <%= render ActionButtonComponent.new(
                     text: "Submit Design to Get Project Funding",
@@ -631,13 +644,14 @@
         </nav>
       <% end %>
 
-      <% if Flipper.enabled?(:test_time, current_user) %>
-        <%= button_to "Add 15min (test)",
-                      add_test_time_project_path(@project),
-                      method: :post,
-                      class: "action-btn action-btn--large action-btn--secondary project-show__test-time",
-                      form: { class: "project-show__test-time-form" } %>
-      <% end %>
+    <% end %>
+
+    <% if is_member && Flipper.enabled?(:test_time, current_user) %>
+      <%= button_to "Add 15min (test)",
+                    add_test_time_project_path(@project),
+                    method: :post,
+                    class: "action-btn action-btn--large action-btn--secondary project-show__test-time",
+                    form: { class: "project-show__test-time-form" } %>
     <% end %>
 
     <% if is_member && params[:just_shipped].present? %>

@@ -102,6 +102,7 @@ class Project < ApplicationRecord
   has_many :ship_events, through: :ship_event_posts, source: :postable, source_type: "Post::ShipEvent"
   has_many :git_commit_posts, -> { where(postable_type: "Post::GitCommit").order(created_at: :desc) }, class_name: "Post"
   has_many :votes, dependent: :destroy
+  has_many :vote_events, class_name: "Vote::Event", dependent: :nullify
   has_many :reports, class_name: "Project::Report", dependent: :destroy
   has_many :ship_reviews, class_name: "Certification::Ship", dependent: :restrict_with_exception
   has_many :certification_funding_requests, class_name: "Certification::FundingRequest", dependent: :destroy
@@ -256,21 +257,11 @@ class Project < ApplicationRecord
   # allows nil, but not "").
   normalizes :hardware_stage, with: ->(value) { value.presence }
   validates :hardware_stage, inclusion: { in: HARDWARE_STAGES }, allow_nil: true
-  validate :validate_project_categories
   validate :hardware_stage_locked_after_funding_request
 
   def hardware_stage_locked_after_funding_request
     return unless hardware_stage_changed? && has_any_funding_request?
     errors.add(:hardware_stage, "cannot be changed after a funding request has been submitted")
-  end
-
-  def validate_project_categories
-    return if project_categories.blank?
-
-    invalid_types = project_categories - AVAILABLE_CATEGORIES
-    if invalid_types.any?
-      errors.add(:project_categories, "contains invalid types: #{invalid_types.join(', ')}")
-    end
   end
 
   def validate_repo_cloneable
@@ -596,26 +587,6 @@ class Project < ApplicationRecord
 
   def last_ship_event
     ship_events.first
-  end
-
-  def has_legacy_ship_events?
-    ship_events.where(voting_scale_version: Post::ShipEvent::LEGACY_VOTING_SCALE_VERSION).exists?
-  end
-
-  def has_paid_current_scale_ship_events?(excluding_ship_event_id: nil)
-    scope = ship_events
-              .where(voting_scale_version: Post::ShipEvent::CURRENT_VOTING_SCALE_VERSION)
-              .where.not(payout: nil)
-    scope = scope.where.not(id: excluding_ship_event_id) if excluding_ship_event_id.present?
-    scope.exists?
-  end
-
-  def legacy_payout_total
-    ship_events
-      .where(voting_scale_version: Post::ShipEvent::LEGACY_VOTING_SCALE_VERSION)
-      .where.not(payout: nil)
-      .sum(:payout)
-      .to_f
   end
 
   def total_ship_hours

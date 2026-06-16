@@ -78,7 +78,9 @@
             show_likes: false,
             show_comments: false,
             show_reposts: false,
-            show_actions: false
+            show_actions: false,
+            track_engagement: track_engagement,
+            show_views: show_views
           ) %>
     </div>
   <% end %>
@@ -272,7 +274,7 @@
             Copy link to clipboard
           </button>
 
-          <% if current_user.present? %>
+          <% if current_user.present? && track_engagement %>
             <button type="button" class="feed-post-card__menu-item" data-action="post-menu#notInterested">
               Don&apos;t show me posts like this
             </button>
