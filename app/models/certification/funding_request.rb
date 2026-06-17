@@ -284,6 +284,7 @@ module Certification
       update_column(:hcb_grant_hashid, grant["id"])
     rescue => e
       Rails.logger.error "Failed to issue HCB grant for FundingRequest ##{id}: #{e.message}"
+      raise
     end
 
     def notify_owner!
