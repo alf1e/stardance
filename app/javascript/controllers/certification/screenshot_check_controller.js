@@ -15,7 +15,8 @@ export default class extends Controller {
     const incorrect = this.screenshotValue === "no";
     this.warningTarget.hidden = !incorrect;
     if (this.hasSubmitTarget) {
-      this.submitTarget.disabled = incorrect && this.verdictValue === "approved";
+      this.submitTarget.disabled =
+        incorrect && this.verdictValue === "approved";
     }
   }
 
