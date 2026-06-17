@@ -8,10 +8,10 @@ const PALETTE = [
   "#86efac", // green
   "#FFD598", // peach
   "#bef264", // lime
-  "#F472B6", // hot pink
+  "#EBB7FF", // lilac
   "#FFF8D5", // cream
   "#2DD4BF", // teal
-  "#FB923C", // orange
+  "#95DBFF", // blue
   "#A7F3D0", // mint green
   "#FDE68A", // gold
 ];
@@ -52,7 +52,6 @@ export default class extends Controller {
     "reviewerDecisions",
     "reviewerReturned",
     "reviewerApproved",
-    "reviewerRejections",
   ];
   static values = { data: Array, reviewerData: Array };
 
@@ -366,7 +365,6 @@ export default class extends Controller {
       this.reviewerDecisionsTarget,
       this.reviewerReturnedTarget,
       this.reviewerApprovedTarget,
-      this.reviewerRejectionsTarget,
     ];
     this.reviewerCharts = targets.map((canvas) => this.#makeLine(canvas, []));
     this.charts.push(...this.reviewerCharts);
@@ -395,12 +393,10 @@ export default class extends Controller {
         };
       });
 
-    const [decisionsChart, returnedChart, approvedChart, rejectionsChart] =
-      this.reviewerCharts;
+    const [decisionsChart, returnedChart, approvedChart] = this.reviewerCharts;
     decisionsChart.data.datasets = lineDatasets("total");
     returnedChart.data.datasets = lineDatasets("returned");
     approvedChart.data.datasets = lineDatasets("approved");
-    rejectionsChart.data.datasets = lineDatasets("returned");
     this.reviewerCharts.forEach((c) => c.update());
 
     this.renderReviewerTotals(selected, reviewers);

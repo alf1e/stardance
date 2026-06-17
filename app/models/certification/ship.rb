@@ -124,10 +124,10 @@ module Certification
     # to the current user the way the listing is.
     def self.dashboard_stats(now: Time.current)
       today = now.beginning_of_day
-      week  = now.beginning_of_week
+      week = now.beginning_of_week
       approved_count = where(status: :approved).count
       returned_count = where(status: :returned).count
-      decided_count  = approved_count + returned_count
+      decided_count = approved_count + returned_count
 
       decided = where.not(status: :pending)
 
@@ -245,6 +245,7 @@ module Certification
         date     = now.to_date - (days - 1 - i)
         date_end = date.to_time.end_of_day
         dec      = decisions[date]
+        # O(days × fetched_ships) in-memory scan; acceptable at current table size, revisit beyond ~100k rows.
         queue    = queue_ships.count { |ca, da| ca <= date_end && (da.nil? || da > date_end) }
         {
           date: date.strftime("%-m/%-d"),
