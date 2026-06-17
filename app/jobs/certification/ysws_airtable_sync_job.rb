@@ -313,9 +313,11 @@ module Certification
 
       ysws_justification = review.summary_justification.presence
       goi_note = ai_summary.present? ? "\n#{ai_summary}" : ""
+      project_update_note = review.project.update_description.present? ? "\nProject update: #{review.project.update_description}" : ""
 
       justification = <<~JUSTIFICATION
         The user logged #{original_formatted} on hackatime. #{total_original_minutes == total_approved_minutes ? "" : "(This was adjusted to #{approved_formatted} after review.)"}.
+        #{project_update_note}
         #{goi_note}
 
         In this time they wrote #{devlog_reviews.count} devlogs.
