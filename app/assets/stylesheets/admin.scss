@@ -50,20 +50,21 @@ body.admin-page {
 
   h1 {
     font-size: var(--font-size-xxxl);
-    margin-bottom: var(--space-m);
   }
+
   h2 {
     font-size: var(--font-size-xxl);
-    margin-top: var(--space-xl);
   }
+
   h3 {
     font-size: var(--font-size-xl);
   }
+
   h4 {
     font-size: var(--font-size-l);
   }
 
-  a {
+  a:not(.action-btn) {
     color: var(--color-brand-highlight);
     text-decoration: none;
 
@@ -158,6 +159,7 @@ body.admin-page {
       &:hover {
         background: var(--color-overlay-light-soft);
       }
+
       &:last-child td {
         border-bottom: 0;
       }
@@ -278,6 +280,7 @@ body.admin-page {
     &:hover {
       box-shadow: var(--shadow);
     }
+
     &::after {
       content: unset;
     }
@@ -365,7 +368,7 @@ body.admin-page {
   gap: 0.5rem;
   margin-bottom: var(--space-m);
 
-  > .card {
+  >.card {
     flex: 1;
   }
 }
@@ -432,11 +435,9 @@ body.admin-page {
   }
 
   &.badge-mass_dm_sent {
-    background: linear-gradient(
-      135deg,
-      rgba(245, 158, 11, 0.3),
-      rgba(239, 68, 68, 0.3)
-    );
+    background: linear-gradient(135deg,
+        rgba(245, 158, 11, 0.3),
+        rgba(239, 68, 68, 0.3));
     color: #fbbf24;
     font-weight: 700;
   }
@@ -512,12 +513,15 @@ body.admin-page {
   &:hover {
     background: var(--color-overlay-light);
   }
+
   &:first-child {
     border-radius: 0.35rem 0.35rem 0 0;
   }
+
   &:last-child {
     border-radius: 0 0 0.35rem 0.35rem;
   }
+
   &.is-hidden {
     display: none;
   }
@@ -802,6 +806,7 @@ dialog {
 .audit-log__username {
   font-weight: 500;
 }
+
 .audit-log__system {
   color: var(--color-space-text-muted);
   font-style: italic;
@@ -861,14 +866,17 @@ dialog {
 .audit-log__val {
   font-size: var(--font-size-xs);
 }
+
 .audit-log__redacted {
   font-size: var(--font-size-xs);
   color: var(--color-space-text-muted);
 }
+
 .audit-log__more {
   font-size: var(--font-size-xs);
   color: var(--color-space-text-muted);
 }
+
 .audit-log__empty {
   color: var(--color-space-text-muted);
 }

@@ -1,6 +1,7 @@
 <% content_for :title, "Order ##{@order.id}" %>
 <%
   s = @order.aasm_state
+  display_s = policy(@order).view_on_hold_state? ? s : (s == "on_hold" ? "pending" : s)
 
   # Pipeline steps: index maps to how far through the flow we are
   # 0=pending, 1=verification, 2=awaiting_fulfillment, 3=fulfilled
@@ -32,7 +33,7 @@
     <div class="aorder__title-group">
       <h1 class="aorder__title">
         Order #<%= @order.id %>
-        <span class="aorder__state-badge aorder__state-badge--<%= s %>"><%= s.humanize %></span>
+        <span class="aorder__state-badge aorder__state-badge--<%= display_s %>"><%= display_s.humanize %></span>
       </h1>
       <p class="aorder__subtitle"><%= @order.shop_item.name %> · <%= @order.created_at.strftime("%b %-d, %Y at %-I:%M%p") %></p>
     </div>
@@ -67,7 +68,7 @@
         <span class="aorder__step-sublabel">
           <% if i == step_idx && s == "awaiting_verification_call" %>Verification Call
           <% elsif i == step_idx && s == "awaiting_verification" %>Identity Check
-          <% elsif i == step_idx && s == "on_hold" %>On Hold
+          <% elsif i == step_idx && s == "on_hold" %><%= policy(@order).view_on_hold_state? ? "On Hold" : "Pending" %>
           <% else %><%= step[:sublabel] %>
           <% end %>
         </span>
@@ -105,8 +106,7 @@
         <div class="aorder__row">
           <span class="aorder__row-label">Status</span>
           <span class="aorder__row-value">
-            <% display_state = (!policy(current_user).view_order_full_details? && s == "on_hold") ? "pending" : s %>
-            <span class="aorder__state-badge aorder__state-badge--<%= display_state %>"><%= display_state.humanize %></span>
+            <span class="aorder__state-badge aorder__state-badge--<%= display_s %>"><%= display_s.humanize %></span>
           </span>
         </div>
         <% unless policy(current_user).view_order_full_details? %>
@@ -268,7 +268,9 @@
       <div class="aorder__card-header">
         <h2 class="aorder__card-title">Shop Item</h2>
         <div style="display:flex; gap: var(--space-xs); align-items:center;">
-          <%= link_to "Admin →", admin_shop_item_path(@order.shop_item), class: "aorder__btn aorder__btn--secondary", style: "padding: 2px 10px; font-size: 12px;" %>
+          <% if current_user.admin? %>
+            <%= link_to "Admin →", admin_shop_item_path(@order.shop_item), class: "aorder__btn aorder__btn--secondary", style: "padding: 2px 10px; font-size: 12px;" %>
+          <% end %>
           <%= link_to "Public →", shop_item_path(@order.shop_item), class: "aorder__btn aorder__btn--secondary", style: "padding: 2px 10px; font-size: 12px;", target: "_blank" %>
           <% if policy(:admin).manage_shop? || policy(:admin).manage_draft_shop_items? %>
             <%= link_to "Edit →", edit_admin_shop_item_path(@order.shop_item), class: "aorder__btn aorder__btn--secondary", style: "padding: 2px 10px; font-size: 12px;" %>

@@ -47,8 +47,9 @@
             </td>
             <td><%= order.total_cost %></td>
             <td>
+              <% display_state = policy(order).view_on_hold_state? ? order.aasm_state : (order.aasm_state == "on_hold" ? "pending" : order.aasm_state) %>
               <span>
-                <%= order.aasm_state.humanize %>
+                <%= display_state.humanize %>
               </span>
               <% if order.aasm_state == "fulfilled" %>
                 <br><small>Shipped to user</small>
