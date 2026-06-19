@@ -69,6 +69,10 @@ class User < ApplicationRecord
   include SemanticSearchIndexable
   include Gorse::SyncableUser
 
+  # Dropped in favour of the manual_outpost_ticket_approval achievement row.
+  # Kept ignored so a cached schema can't reference it mid-deploy.
+  self.ignored_columns += [ "manual_outpost_ticket_approval" ]
+
   has_paper_trail ignore: [ :votes_count, :updated_at, :shop_region, :ip_address, :user_agent ], on: [ :update, :destroy ]
   semantic_search_indexable type: "user"
 
@@ -217,7 +221,6 @@ class User < ApplicationRecord
   validates :display_name, format: { with: USERNAME_FORMAT, message: "can only contain letters, numbers, hyphens, and underscores" }, if: :display_name_changed?
   validates :hcb_email, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
   validates :user_ref, length: { maximum: 100 }, allow_blank: true
-  validates :manual_outpost_ticket_approval, format: { with: /\Ahttps?:\/\/.+\z/i, message: "must be an HTTP(S) URL" }, allow_blank: true
 
   include User::Notifications
   include User::Roles
