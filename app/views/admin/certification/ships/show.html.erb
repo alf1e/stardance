@@ -71,7 +71,9 @@
               <% if @ship.project.readme_url.present? %>
                 <%= link_to "readme", @ship.project.readme_url, target: "_blank", rel: "noopener" %>
               <% end %>
-              <a href="#" onclick="event.preventDefault();[<%= [project_url(@ship.project), @ship.project.demo_url, @ship.project.repo_url, @ship.project.readme_url].compact.map { |u| "'#{j(u)}'" }.join(',') %>].forEach(u=>window.open(u,'_blank'))">open all</a>
+              <a href="#"
+                 data-urls="<%= html_escape([project_url(@ship.project), @ship.project.demo_url, @ship.project.repo_url, @ship.project.readme_url].compact.to_json) %>"
+                 onclick="event.preventDefault();JSON.parse(this.dataset.urls).forEach(u=>window.open(u,'_blank'))">open all</a>
             </dd>
           </dl>
         </div>

@@ -7,9 +7,7 @@ class Admin::Certification::ShipPolicy < ApplicationPolicy
 
   def show? = user&.can_review? && not_own_project?
 
-  def update?
-    user&.can_review? && not_own_project?
-  end
+  def update? = show?
 
   def next? = user&.can_review?
 
@@ -25,7 +23,6 @@ class Admin::Certification::ShipPolicy < ApplicationPolicy
   private
 
   def not_own_project?
-    return true unless record.respond_to?(:project_id)
-    !user.memberships.where(project_id: record.project_id).exists?
+    !user.memberships.exists?(project_id: record.project_id)
   end
 end
