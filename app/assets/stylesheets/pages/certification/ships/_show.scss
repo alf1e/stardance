@@ -762,3 +762,12 @@
     box-shadow: 0 0 0 4px rgba(129, 255, 255, 0.18);
   }
 }
+
+// Verdict confirmation preview reuses the shared `.modal` shell + `.status-pill`
+// + `.action-btn`; only the feedback body needs custom rules so the reviewer's
+// line breaks survive and a long note scrolls instead of blowing out the modal.
+.verdict-preview__feedback {
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow-y: auto;
+}

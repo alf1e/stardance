@@ -4,8 +4,9 @@
       id: "unclaim-form-#{ship.id}" do %>
 <% end %>
 
-<%# The video-drop controller sits on the form (not the drop zone) so its
-    submitBtn target is in scope and it can block submits mid-upload. %>
+<div data-controller="certification--verdict-preview"
+     data-action="submit->certification--verdict-preview#intercept">
+
 <%= form_with model: ship, url: admin_certification_ship_path(ship), method: :patch, class: "review-form",
       data: { controller: "certification--video-drop certification--feedback-templates",
               action: "submit->certification--video-drop#guardSubmit",
@@ -119,3 +120,35 @@
           class: "action-btn action-btn--small action-btn--secondary" %>
   </div>
 <% end %>
+
+<%# Reuses the shared .modal shell + `modal` controller (backdrop, esc,
+    scroll-lock); the verdict-preview controller only builds the preview and
+    re-submits on confirm. %>
+<dialog class="modal verdict-preview" data-controller="modal"
+        data-certification--verdict-preview-target="modal"
+        aria-labelledby="verdict-preview-title">
+  <h3 id="verdict-preview-title" class="modal__title">
+    Confirm verdict
+    <span class="status-pill" data-certification--verdict-preview-target="verdict"></span>
+  </h3>
+  <p class="modal__description">Take one last look before this is sent to the user.</p>
+
+  <div class="modal__field" data-certification--verdict-preview-target="feedbackBlock">
+    <label>Feedback</label>
+    <p class="modal__description verdict-preview__feedback" data-certification--verdict-preview-target="feedback"></p>
+  </div>
+  <p class="modal__description" data-certification--verdict-preview-target="noFeedback">No feedback written.</p>
+
+  <div class="modal__actions">
+    <button type="button" class="action-btn action-btn--secondary"
+            data-action="click->modal#close">
+      Go back
+    </button>
+    <button type="button" class="action-btn action-btn--primary" autofocus
+            data-action="click->certification--verdict-preview#confirm">
+      Confirm &amp; submit
+    </button>
+  </div>
+</dialog>
+
+</div>

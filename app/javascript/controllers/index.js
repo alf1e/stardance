@@ -34,6 +34,12 @@ application.register(
   Certification__ScreenshotCheckController,
 );
 
+import Certification__VerdictPreviewController from "./certification/verdict_preview_controller";
+application.register(
+  "certification--verdict-preview",
+  Certification__VerdictPreviewController,
+);
+
 import Certification__Ships__MonitorChartController from "./certification/ships/monitor_chart_controller";
 application.register(
   "certification--ships--monitor-chart",
