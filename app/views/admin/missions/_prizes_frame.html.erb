@@ -37,9 +37,10 @@
           everyone else.
         </small>
         <%= select_tag "mission_prize[shop_item_id]",
-              options_from_collection_for_select(
-                ShopItem.where(mission_prize_only: true).or(ShopItem.where(enabled: true)).order(:name), :id, :name
-              ),
+              grouped_options_for_select([
+                [ "Mission-prize-only items", ShopItem.where(mission_prize_only: true).order(:name).pluck(:name, :id) ],
+                [ "Shop items", ShopItem.where(mission_prize_only: false, enabled: true).order(:name).pluck(:name, :id) ]
+              ]),
               prompt: "Select a shop item" %>
       </label>
       <%= submit_tag "Add prize", class: "action-btn action-btn--large action-btn--primary" %>
