@@ -83,7 +83,7 @@
                 <% hours = review.original_minutes ? (review.original_minutes / 60.0).round(1) : 0 %>
                 <%= hours %> hrs
               </td>
-              <td data-label="Todo reviews">
+              <td data-label="pending devlogs">
                 <span class="ysws-queue__todo-count<%= " ysws-queue__todo-count--zero" if review.todo_devlog_count.zero? %>">
                   <%= review.todo_devlog_count %>
                 </span>
