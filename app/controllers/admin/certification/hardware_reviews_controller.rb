@@ -42,6 +42,7 @@ class Admin::Certification::HardwareReviewsController < Admin::Certification::Ap
     end
 
     @review_items = sort_review_items(funding_items + ship_items)
+    @hackpad_project_ids = hackpad_project_ids(@review_items.map { |item| item[:project].id })
     @stats = hardware_queue_stats
     @leaderboards = {
       "daily" => hardware_leaderboard(:daily),
@@ -146,6 +147,19 @@ class Admin::Certification::HardwareReviewsController < Admin::Certification::Ap
   def reviewed_today_count
     ::Certification::FundingRequest.reviewed_today(current_user) +
       ::Certification::Ship.reviewed_today(current_user)
+  end
+
+  # Of the given project ids, those whose active mission is Hackpad — so the
+  # queue can flag them with a pill without an N+1 of Project#current_mission
+  # per row. Returns a Set for O(1) lookup in the view.
+  def hackpad_project_ids(project_ids)
+    return Set.new if project_ids.empty?
+
+    Project::MissionAttachment.active
+      .joins(:mission)
+      .where(missions: { slug: "hackpad" }, project_id: project_ids)
+      .pluck(:project_id)
+      .to_set
   end
 
   def hardware_queue_stats

@@ -223,6 +223,7 @@
                   <div class="ship-queue__project-head">
                     <span class="ship-queue__project-title"><%= item[:project].title %></span>
                     <span class="ship-queue__project-id">#<%= item[:project].id %></span>
+                    <%= render "hackpad_tag", project: item[:project], hackpad_project_ids: @hackpad_project_ids %>
                   </div>
                   <div class="ship-queue__project-meta">
                     <span><%= item[:project].hardware_stage&.capitalize %></span>
@@ -255,7 +256,10 @@
           <% wait_days = ((Time.current - item[:submitted_at]) / 1.day).floor %>
           <%= link_to admin_certification_hardware_review_path(item[:project]), class: "ship-queue__card" do %>
             <div class="ship-queue__card-top">
-              <span class="ship-queue__project-title"><%= item[:project].title %></span>
+              <span class="ship-queue__project-title">
+                <%= item[:project].title %>
+                <%= render "hackpad_tag", project: item[:project], hackpad_project_ids: @hackpad_project_ids %>
+              </span>
               <span class="status-pill status-pill--<%= item[:record].status %>"><%= item[:record].status.capitalize %></span>
             </div>
             <div class="ship-queue__project-meta">
