@@ -93,7 +93,11 @@ class Projects::SetupController < ApplicationController
 
     is_first_attach = !project.mission_attachments.exists?(mission_id: mission.id)
 
-    project.attach_mission!(mission)
+    begin
+      project.attach_mission!(mission)
+    rescue ActiveRecord::RecordInvalid => e
+      redirect_to mission_path(mission.slug), alert: e.record.errors.full_messages.to_sentence and return
+    end
 
     # Authored defaults apply only on first attach — never overwrite a
     # builder's edits on re-attach.
