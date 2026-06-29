@@ -745,24 +745,24 @@
       <% time_kind = @project.hardware? ? "timelapse" : "coding" %>
       <section class="project-show__onboarding" aria-labelledby="project-show-onboarding-title">
         <header class="project-show__onboarding-header">
-          <% if onboarding_mission&.icon&.attached? %>
-            <%= image_tag onboarding_mission.icon, alt: "", class: "project-show__onboarding-image" %>
+          <% onboarding_banner = onboarding_mission&.banner&.attached? %>
+          <% onboarding_image = onboarding_banner ? onboarding_mission.banner : onboarding_mission&.icon %>
+          <% if onboarding_image&.attached? %>
+            <%= image_tag onboarding_image, alt: "", class: class_names("project-show__onboarding-image", "project-show__onboarding-image--icon" => !onboarding_banner) %>
           <% end %>
 
           <h2 class="project-show__onboarding-header-title" id="project-show-onboarding-title">
             <%= onboarding_mission ? onboarding_mission.name : (@hackatime_linked ? "You're all set — go #{verb}!" : "Welcome to your new project!") %>
           </h2>
 
-          <% if onboarding_mission&.has_guide? %>
-            <p class="project-show__onboarding-header-body">
-              Open the guide to start <%= onboarding_mission.name %>!
-            </p>
-          <% end %>
-
           <%# Time-tracking nudge — shown for every new project, mission or not. %>
           <% if !@hackatime_linked %>
             <p class="project-show__onboarding-header-body">
-              Link Hackatime to start tracking your time. Once you do and post a devlog, you'll unlock free stickers in the shop!
+              <% if onboarding_mission&.has_guide? %>
+                First, link Hackatime to make sure your time is logged, and then open the guide to get started!
+              <% else %>
+                First, link Hackatime to make sure your time is logged, then get started building!
+              <% end %>
             </p>
           <% elsif @project.hackatime_keys.present? %>
             <p class="project-show__onboarding-header-body">
