@@ -112,7 +112,7 @@ class Vote < ApplicationRecord
   def flaggable_by?(user)
     user.present? &&
       ship_event&.payout_review_open? &&
-      project&.memberships&.where(role: :owner, user: user)&.exists? &&
+      (user.admin? || project&.memberships&.where(user: user)&.exists?) &&
       !pending_flag? &&
       !discarded?
   end

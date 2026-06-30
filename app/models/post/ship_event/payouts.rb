@@ -205,6 +205,21 @@ module Post::ShipEvent::Payouts
     payout_amount
   end
 
+  def payout_acceptable_by?(user)
+    user.present? &&
+      payout_review_open? &&
+      (user.admin? || project&.memberships&.where(user: user)&.exists?)
+  end
+
+  def accept_payout_now(user:)
+    if payout_acceptable_by?(user)
+      self.paper_trail_event = "payout_accepted_early"
+      issue_payout(force: true)
+    else
+      false
+    end
+  end
+
   def payout_preview(sample = self.class.payout_score_sample, votes_count: nil, pending_flags_count: nil)
     scores = payout_preview_scores(sample)
     preview_hours = payout_basis_locked_at? ? hours_at_payout.to_f : hours
