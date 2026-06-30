@@ -111,16 +111,24 @@ module Certification
 
       # Use OpenRouter API to summarize
       prompt = <<~PROMPT
-        You are a reviewer, reviewing the reviews recieved through a program. For each devlog a user submits in a project, a review justification is paired with it.
+        You are summarizing the devlog reviews of a YSWS project for an internal reviewer who already knows how the review process works. The project's author submitted several devlogs; for each one a reviewer either approved it (sometimes deducting time) or rejected it, and wrote a justification explaining that decision.
 
-        Your job is to summarize the following devlog reviews into a short summary 2-3 sentences long.
-        Assume the summary is following the text "who mentioned:" and that the user reading the summary knows how the review process works. Assume that the overall review is a passing one (unless all devlogs have rejected status). But do note if there are any devlog reviews that mention malpractice. If there are, highlight that x devlog reviews mentioned deductions / inflation / high AI usage. Also note if any devlogs were rejected.
+        Respond with a single lead-in sentence followed by a numbered list.
+
+        Lead-in sentence — the overall outcome:
+        - If every devlog was approved with no concerns (no deductions, inflation, high AI usage, or rejections), the lead-in must be exactly: "All devlogs were approved based on the provided justifications."
+        - Otherwise, state that the devlogs were approved (or, if every devlog was rejected, that the review did not pass) and note the issues across the review — e.g. how many devlog reviews mentioned deductions / inflation / high AI usage, any rejections, and any devlog whose approved time was significantly reduced.
+
+        Numbered list — exactly one entry per devlog, in order, each a SHORT descriptor whether the devlog was approved or rejected:
+        1. Devlog 1: <outcome, plus a brief reason from the reviewer's justification if there was a deduction, rejection, inflation, or high AI usage>
+        2. Devlog 2: ...
+        Keep an approved-as-logged devlog to just a few words; only explain a reason where the reviewer raised something.
 
         DEVLOG REVIEWS:
         #{devlog_entries}
 
         OUTPUT:
-        Return only the summary text, no formatting or explanations and keep it in first person.
+        Return only the lead-in sentence and the numbered list, with no headings, preamble, or extra formatting.
       PROMPT
 
       response = Faraday.post("https://openrouter.ai/api/v1/chat/completions") do |req|
@@ -197,7 +205,6 @@ module Certification
         total_original_minutes: total_original_minutes,
         total_approved_minutes: total_approved_minutes,
         ship_certifier_name: ship_certifier_name,
-        ai_summary: ai_summary,
         approved_orders: approved_orders
       )
 
@@ -296,7 +303,7 @@ module Certification
       }
     end
 
-    def build_justification(review:, devlog_reviews:, total_original_minutes:, total_approved_minutes:, ship_certifier_name:, ai_summary:, approved_orders:)
+    def build_justification(review:, devlog_reviews:, total_original_minutes:, total_approved_minutes:, ship_certifier_name:, approved_orders:)
       project_id = review.project_id
       ysws_review_id = review.id
       ship_cert_id = review.ship_cert_id
@@ -305,38 +312,38 @@ module Certification
       # Format minutes
       original_formatted = format_minutes(total_original_minutes)
       approved_formatted = format_minutes(total_approved_minutes)
+      adjusted_note = total_original_minutes == total_approved_minutes ? "" : " (This was adjusted to #{approved_formatted} after review.)"
 
-      # Build devlog approval list
-      approved_devlogs = devlog_reviews.select { |dr| dr.approved? }
-      devlog_list = approved_devlogs.map do |dr|
-        "devlog #{dr.post_devlog_id}: #{dr.approved_minutes} min"
+      # Devlog tallies for the summary line
+      approved_count = devlog_reviews.count(&:approved?)
+      rejected_count = devlog_reviews.count(&:rejected?)
+      approval_summary = "Of which #{approved_count} #{approved_count == 1 ? "was" : "were"} approved"
+      approval_summary += " and #{rejected_count} rejected" if rejected_count.positive?
+
+      # Per-devlog breakdown: minutes, status, and the reviewer's justification
+      devlog_list = devlog_reviews.map do |dr|
+        minutes = dr.approved? ? dr.approved_minutes : dr.original_minutes
+        devlog_note = dr.justification.presence
+        line = "devlog #{dr.post_devlog_id}: #{minutes} min #{dr.status}"
+        line += " #{devlog_note}" if devlog_note
+        line
       end.join("\n")
 
-      ysws_justification = review.summary_justification.presence
-      goi_note = ai_summary.present? ? "\n#{ai_summary}" : ""
-      # Surface the submitter's update description whenever there is one. Failing
-      # that, a reship (a review preceded by an earlier review of the same
-      # project) still notes the project update with a generic fallback.
-      project_update_note = if review.project.update_description.present?
-        "\nProject update: #{review.project.update_description}"
-      elsif prior_review?(review)
-        "\nProject update: previously shipped to Stardance"
-      else
-        ""
-      end
+      # A review counts as a project update when it carries an update description
+      # or an earlier review of the same project exists (a reship).
+      project_updated = review.project&.update_description.present? || prior_review?(review)
+
+      intro = "The user logged #{original_formatted} on hackatime.#{adjusted_note}"
+      intro += "\nThis is a project update." if project_updated
 
       justification = <<~JUSTIFICATION
-        The user logged #{original_formatted} on hackatime. #{total_original_minutes == total_approved_minutes ? "" : "(This was adjusted to #{approved_formatted} after review.)"}.
-        #{project_update_note}
-        #{goi_note}
+        #{intro}
 
-        In this time they wrote #{devlog_reviews.count} devlogs.
+        In this time they wrote #{devlog_reviews.count} devlogs. #{approval_summary}.
 
         This project was initially ship certified by #{ship_certifier_name}.
 
-        Following this it was YSWS reviewed by #{reviewer_name}#{ysws_justification.present? ? "\n\nwho mentioned: #{ysws_justification}" : ""}
-
-        and approved:
+        Following this it was YSWS reviewed by #{reviewer_name}
 
         #{devlog_list}
         ====================================================
