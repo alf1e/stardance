@@ -322,10 +322,10 @@ module Certification
 
       # Per-devlog breakdown: minutes, status, and the reviewer's justification
       devlog_list = devlog_reviews.map do |dr|
-        minutes = dr.approved? ? dr.approved_minutes : dr.original_minutes
+        minutes = dr.approved_minutes || 0
         devlog_note = dr.justification.presence
         line = "devlog #{dr.post_devlog_id}: #{minutes} min #{dr.status}"
-        line += " #{devlog_note}" if devlog_note
+        line += ": \"#{devlog_note}\"" if devlog_note
         line
       end.join("\n")
 
@@ -367,6 +367,14 @@ module Certification
 
           justification += "\n\nThis user has the following manually approved shop orders:\n#{orders_list}"
         end
+      end
+
+      # List the Hackatime project names linked to this project
+      hackatime_project_names = review.project&.hackatime_projects&.pluck(:name) || []
+      justification += if hackatime_project_names.any?
+        "\n\nUser's Hackatime Project Names: #{hackatime_project_names.join(", ")}"
+      else
+        "\n\nNo hackatime projects linked :cry:"
       end
 
       justification.strip
