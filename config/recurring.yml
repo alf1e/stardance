@@ -158,6 +158,12 @@ production:
     concurrency: 1
     description: "Recalculate approx_balance and approx_total_earned from ledger entries"
 
+  clear_insufficient_mac_analyses:
+    class: Certification::ClearInsufficientMACAnalysesJob
+    schedule: every day at 6am UTC
+    concurrency: 1
+    description: "Destroy MAC analyses flagged insufficient_data older than 3 days so they re-enter the pending queue"
+
   certification_ysws_airtable_resync:
     class: Certification::YswsAirtableResyncJob
     schedule: every day at 4pm America/New_York
@@ -193,3 +199,9 @@ production:
     schedule: every day at 9am America/New_York
     concurrency: 1
     description: "Send a one-time notification to any user holding the RNG Winner achievement who hasn't been notified yet"
+
+  flush_extension_usage:
+    class: FlushExtensionUsageJob
+    schedule: every 5 minutes
+    concurrency: 1
+    description: "Drain Redis buffer of extension usage events into the database"
