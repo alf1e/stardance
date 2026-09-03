@@ -1,3 +1,25 @@
+# == Schema Information
+#
+# Table name: daily_rolls
+#
+#  id           :bigint           not null, primary key
+#  reroll_value :integer
+#  rolled_on    :date             not null
+#  value        :integer          not null
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
+#  user_id      :bigint           not null
+#
+# Indexes
+#
+#  index_daily_rolls_on_rolled_on_and_value    (rolled_on,value)
+#  index_daily_rolls_on_user_id                (user_id)
+#  index_daily_rolls_on_user_id_and_rolled_on  (user_id,rolled_on) UNIQUE
+#
+# Foreign Keys
+#
+#  fk_rails_...  (user_id => users.id)
+#
 require "test_helper"
 
 class DailyRollTest < ActiveSupport::TestCase
