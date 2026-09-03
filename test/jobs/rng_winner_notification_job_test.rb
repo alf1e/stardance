@@ -30,4 +30,22 @@ class RngWinnerNotificationJobTest < ActiveSupport::TestCase
       RngWinnerNotificationJob.perform_now
     end
   end
+
+  test "grants the achievement to a day's topper who never visited /achievements" do
+    DailyRoll.create!(user: @user, value: 100, rolled_on: 2.days.ago.to_date)
+
+    assert_difference -> { Notifications::RngWinner.count }, 1 do
+      RngWinnerNotificationJob.perform_now
+    end
+
+    assert @user.reload.earned_achievement?(:rng_winner)
+  end
+
+  test "notifies with the winning roll as the record" do
+    winning_roll = DailyRoll.create!(user: @user, value: 100, rolled_on: 2.days.ago.to_date)
+
+    RngWinnerNotificationJob.perform_now
+
+    assert_equal winning_roll, Notifications::RngWinner.last.record
+  end
 end
