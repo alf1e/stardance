@@ -164,8 +164,9 @@ class DailyRoll < ApplicationRecord
   end
 
   # Date range daily-roll leaderboards are considered final for the
-  # rng_winner achievement: from launch through the last fully-elapsed day
-  # (today's board is still open).
+  # rng_winner achievement: from launch through two days ago. Today's board is
+  # still open, and yesterday's is held back one extra day (the range end is
+  # exclusive) so a late reroll can still change who topped it.
   def self.winnable_range
     Date.new(2026, 7, 1)...(Date.current - 1)
   end

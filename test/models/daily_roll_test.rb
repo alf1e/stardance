@@ -81,6 +81,8 @@ class DailyRollTest < ActiveSupport::TestCase
   end
 
   test "first_win returns nil for a user who never topped a day" do
+    # The loser needs someone above them: a solo roll tops its own board.
+    DailyRoll.create!(user: @winner, value: 100, rolled_on: 2.days.ago.to_date)
     DailyRoll.create!(user: @loser, value: 1, rolled_on: 2.days.ago.to_date)
 
     assert_nil DailyRoll.first_win(@loser)
